@@ -1,0 +1,32 @@
+{
+  "name": "@modular-component/default",
+  "description": "Sensible defaults for the ModularComponent system",
+  "keywords": [
+    "React",
+    "Modular",
+    "Factory",
+    "Default",
+    "Lifecycle"
+  ],
+  "version": "0.0.1-initial",
+  "type": "module",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn build:with-default-props && yarn build:with-lifecycle && yarn build:self",
+    "build:with-default-props": "yarn workspace @modular-component/with-default-props build",
+    "build:with-lifecycle": "yarn workspace @modular-component/with-lifecycle build",
+    "build:self": "tsc"
+  },
+  "dependencies": {
+    "@modular-component/with-default-props": "0.0.1-initial",
+    "@modular-component/with-lifecycle": "0.0.1-initial"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.4"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts"
+}

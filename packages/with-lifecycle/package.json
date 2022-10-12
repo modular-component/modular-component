@@ -1,0 +1,30 @@
+{
+  "name": "@modular-component/with-lifecycle",
+  "description": "ModularComponent stage for handling stateful lifecycle. Part of the @modular-component/default package.",
+  "keywords": [
+    "React",
+    "Modular",
+    "Factory",
+    "Default",
+    "Conditional"
+  ],
+  "version": "0.0.1-initial",
+  "type": "module",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn build:core && yarn build:self",
+    "build:core": "yarn workspace @modular-component/core build",
+    "build:self": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@modular-component/core": "0.0.1-initial"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.4"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts"
+}

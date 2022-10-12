@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@modular-component/core": ["../core/src"],
+      "@modular-component/extension": ["../extension/src"]
+    }
+  }
+}
