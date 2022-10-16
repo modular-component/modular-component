@@ -9,6 +9,7 @@
   "scripts": {
     "build": "wsrun -t -p @modular-component/* -p modular-component -c build:self",
     "depcheck": "wsrun -s -p @modular-component/* -p modular-component -c depcheck",
+    "license": "wsrun -s -p @modular-component/* -p modular-component -c license",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "version": "yarn depcheck && changeset version",

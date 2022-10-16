@@ -19,7 +19,8 @@
     "build": "yarn build:with-default-props && yarn build:with-lifecycle && yarn build:self",
     "build:with-default-props": "yarn workspace @modular-component/with-default-props build",
     "build:with-lifecycle": "yarn workspace @modular-component/with-lifecycle build",
-    "build:self": "tsc"
+    "build:self": "tsc",
+    "license": "cp ../../LICENSE ./LICENSE"
   },
   "dependencies": {
     "@modular-component/with-default-props": "0.0.1-initial",

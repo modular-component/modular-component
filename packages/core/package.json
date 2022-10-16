@@ -16,7 +16,8 @@
   "files": ["src", "dist", "CHANGELOG.md"],
   "scripts": {
     "build": "yarn build:self",
-    "build:self": "tsc"
+    "build:self": "tsc",
+    "license": "cp ../../LICENSE ./LICENSE"
   },
   "peerDependencies": {
     "react": ">=17 <19"
