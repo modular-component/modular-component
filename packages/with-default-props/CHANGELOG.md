@@ -1,5 +1,12 @@
 # @modular-component/with-default-props
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [6b2a1ab]
+  - @modular-component/core@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
