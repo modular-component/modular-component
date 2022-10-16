@@ -402,6 +402,30 @@ will log the arguments gathered up until each debug stage.
 > a valid call instead of requiring `useDebug(undefined)`. Useful for
 > stages that return a constant value or only execute side-effects!
 
+## Other methods
+
+Atop of the factory stages configured through extensions, `ModularComponent`s
+also expose two more methods:
+
+- `asHook`: extract the stages as a custom hook, returning the map of arguments.
+  This is used internally when calling the generated component, but can also be
+  useful in other situations like tests, or the need to generate a shared hook
+  consuming application context, such as a global store for which a stage exists.
+
+  It optionally takes a string parameter allowing to extract a specific argument.
+
+- `atStage`: rewinds a factory all the way up to a specific stage
+  (in case on multiple-mode stages, the last occurrence is used), and return the
+  a new `ModularComponent` with the remaining stages.
+  Useful for instance to test in isolation the first few stages of a component.
+
+Combining those two methods can be very powerful in testing scenarios. For instance,
+one can extract the lifecycle hook of a component by chaining them:
+
+```tsx
+const useLifecycle = MyComponent.atStage('withLifecycle').asHook('lifecycle')
+```
+
 ## Official extensions
 
 ### `@modular-component/with-default`

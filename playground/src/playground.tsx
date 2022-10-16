@@ -24,15 +24,10 @@ const useSharedLifecycle = ModularComponent()
 
 const Conditional = ModularComponent<{ enabled?: boolean; other?: boolean }>()
   .withDate()
-  .withDebug()
   .withDefaultProps({ enabled: false })
-  .withDebug()
   .withComponents({ Loading, Disabled })
-  .withDebug((args) => console.error(args))
   .withCondition(({ props }) => props.enabled)
-  .withDebug()
   .withConditionalFallback(({ components }) => <components.Disabled />)
-  .withDebug()
   .withLifecycle(() => {
     const [loading, setLoading] = useSharedLifecycle()
 
@@ -44,11 +39,8 @@ const Conditional = ModularComponent<{ enabled?: boolean; other?: boolean }>()
 
     return { loading, reload: () => setLoading(true) }
   })
-  .withDebug()
   .withCondition(({ lifecycle }) => !lifecycle.loading)
-  .withDebug()
   .withConditionalFallback(({ components }) => <components.Loading />)
-  .withDebug()
   .withConditionalRender(({ lifecycle, date }) => (
     <UI.Stack>
       <UI.Text align="center">Loaded!</UI.Text>

@@ -58,7 +58,13 @@ function ModularFactory<Methods extends MethodRecord>(methods: Methods) {
         // Add a function for rewinding the component up to a certain stage
         Component.atStage = ((stage: MethodName) => {
           // Find the needed stage
-          const stageIndex = stages.findIndex((record) => record.key === stage)
+          const stageIndex = (stages
+            // Map all stages to an [index, stage] tuple
+            .map((record, index) => [index, record] as const)
+            // Remove all tuples not matching our stage
+            .filter(([, record]) => record.key === stage)
+            // Get the index of the very last one, or -1 if none are remaining
+            .pop() || [-1])[0]
 
           // If the stage cannot be found, create a brand new, empty component
           if (stageIndex === -1) {
