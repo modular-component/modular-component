@@ -8,13 +8,17 @@
     "Default",
     "Lifecycle"
   ],
-  "version": "0.0.1-initial",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
-  "files": ["src", "dist", "CHANGELOG.md"],
+  "files": [
+    "src",
+    "dist",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "yarn build:with-default-props && yarn build:with-lifecycle && yarn build:self",
     "build:with-default-props": "yarn workspace @modular-component/with-default-props build",
@@ -23,8 +27,8 @@
     "license": "cp ../../LICENSE ./LICENSE"
   },
   "dependencies": {
-    "@modular-component/with-default-props": "0.0.1-initial",
-    "@modular-component/with-lifecycle": "0.0.1-initial"
+    "@modular-component/with-default-props": "0.1.0",
+    "@modular-component/with-lifecycle": "0.1.0"
   },
   "devDependencies": {
     "typescript": "^4.6.4"
