@@ -7,20 +7,24 @@
     "Factory",
     "Test"
   ],
-  "version": "0.0.1-initial",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
-  "files": ["src", "dist", "CHANGELOG.md"],
+  "files": [
+    "src",
+    "dist",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "yarn build:self",
     "build:self": "tsc",
     "license": "cp ../../LICENSE ./LICENSE"
   },
   "dependencies": {
-    "@modular-component/core": "0.0.1-initial"
+    "@modular-component/core": "0.1.0"
   },
   "devDependencies": {
     "typescript": "^4.6.4"

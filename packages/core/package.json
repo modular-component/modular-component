@@ -7,13 +7,17 @@
     "Factory",
     "Test"
   ],
-  "version": "0.0.1-initial",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
-  "files": ["src", "dist", "CHANGELOG.md"],
+  "files": [
+    "src",
+    "dist",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "yarn build:self",
     "build:self": "tsc",
