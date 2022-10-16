@@ -1,5 +1,6 @@
 {
   "name": "modular-component",
+  "version": "1.0.0",
   "description": "A React Component System for delightfully organized and deeply testable Modular Components",
   "workspaces": [
     "packages/*",
@@ -7,12 +8,13 @@
   ],
   "private": true,
   "scripts": {
-    "build": "wsrun -t -p @modular-component/* -c build:self",
-    "depcheck": "wsrun -s -p @modular-component/* -c depcheck",
+    "build": "wsrun -t -p @modular-component/* -p modular-component -c build:self",
+    "depcheck": "wsrun -s -p @modular-component/* -p modular-component -c depcheck",
+    "license": "wsrun -s -p @modular-component/* -p modular-component -c license",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
-    "version": "yarn depcheck && changeset version",
-    "release": "yarn build && changeset publish"
+    "changeset:version": "yarn depcheck && changeset version",
+    "changeset:release": "yarn build && yarn license && changeset publish"
   },
   "dependencies": {
     "@changesets/cli": "^2.25.0",

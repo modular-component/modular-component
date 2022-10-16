@@ -13,18 +13,16 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": ["src", "dist", "CHANGELOG.md"],
   "scripts": {
     "build": "yarn build:self",
-    "build:self": "tsc"
+    "build:self": "tsc",
+    "license": "cp ../../LICENSE ./LICENSE"
   },
   "dependencies": {
     "@modular-component/core": "0.0.1-initial"
   },
-  "peerDependencies": {
-    "react": ">=17 <19"
-  },
   "devDependencies": {
-    "@types/react": "^18.0.17",
     "typescript": "^4.6.4"
   },
   "main": "dist/index.js",
