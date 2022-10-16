@@ -14,6 +14,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": ["src", "dist", "CHANGELOG.md"],
   "scripts": {
     "build": "yarn build:with-default-props && yarn build:with-lifecycle && yarn build:self",
     "build:with-default-props": "yarn workspace @modular-component/with-default-props build",

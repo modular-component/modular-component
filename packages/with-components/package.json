@@ -15,6 +15,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": ["src", "dist", "CHANGELOG.md"],
   "scripts": {
     "build": "yarn build:core && yarn build:self",
     "build:core": "yarn workspace @modular-component/core build",

@@ -13,6 +13,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": ["src", "dist", "CHANGELOG.md"],
   "scripts": {
     "build": "yarn build:self",
     "build:self": "tsc"

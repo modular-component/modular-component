@@ -7,8 +7,8 @@
   ],
   "private": true,
   "scripts": {
-    "build": "wsrun -t -p @modular-component/* -c build:self",
-    "depcheck": "wsrun -s -p @modular-component/* -c depcheck",
+    "build": "wsrun -t -p @modular-component/* -p modular-component -c build:self",
+    "depcheck": "wsrun -s -p @modular-component/* -p modular-component -c depcheck",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "version": "yarn depcheck && changeset version",
