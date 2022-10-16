@@ -11,6 +11,7 @@
     "depcheck": "wsrun -s -p @modular-component/* -c depcheck",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
+    "version": "yarn depcheck && changeset version",
     "release": "yarn build && changeset publish"
   },
   "dependencies": {
