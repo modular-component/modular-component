@@ -13,7 +13,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "version": "yarn depcheck && changeset version",
-    "release": "yarn build && changeset publish"
+    "release": "yarn build && yarn license && changeset publish"
   },
   "dependencies": {
     "@changesets/cli": "^2.25.0",
