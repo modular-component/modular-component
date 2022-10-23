@@ -1,5 +1,13 @@
 # @modular-component/with-conditional-render
 
+## 0.1.2
+
+### Patch Changes
+
+- e95e0ad: Move to using Symbols for transform map
+- Updated dependencies [e95e0ad]
+  - @modular-component/core@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @modular-component/with-components
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [e95e0ad]
+  - @modular-component/core@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes
