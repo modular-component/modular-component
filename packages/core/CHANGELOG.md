@@ -1,5 +1,11 @@
 # @modular-component/core
 
+## 0.1.3
+
+### Patch Changes
+
+- d5c9031: Add children as direct argument, inheriting props.children
+
 ## 0.1.2
 
 ### Patch Changes
