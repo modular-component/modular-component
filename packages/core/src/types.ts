@@ -113,7 +113,7 @@ type MapArgs<
   Args = ComputeArgs<Stages, Limit>,
 > = UnionToIntersection<
   // Start by injecting the original props
-  | { props: Props }
+  | { props: Props, children: Props extends { children: infer U } ? U : never }
   // Map over all configured methods
   | {
       [key in keyof Methods]: key extends keyof Args // Check if an arg exists for the given method

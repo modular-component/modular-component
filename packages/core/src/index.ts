@@ -31,7 +31,7 @@ function ModularFactory<Methods extends MethodRecord>(methods: Methods) {
         Component.asHook = ((field: string) => (props: Props) => {
           // Prepare the shared arguments object, prefilling it with the props
           // and an empty render result
-          let args = { props, render: null }
+          let args = { props, children: (props as { children?: unknown }).children, render: null }
 
           // Run each stage in order, replacing the arguments by the response
           // from the last stage
