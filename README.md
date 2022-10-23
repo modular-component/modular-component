@@ -190,7 +190,7 @@ detailing a new stage method to add to the pipeline.
 
 #### Setting a name and a target argument
 
-In order to add a new stage, we need to provide at the very list:
+In order to add a new stage, we need to provide at the very least:
 
 - The name of the method to add to the factory (`withLifecycle`, `withDefaultProps`...)
 - The name of the argument modified by the stage (`lifecycle`, `props`...)
@@ -293,11 +293,6 @@ While this might seem cumbersome, it offers a great flexibility for writing exte
 
 #### Telling TypeScript about a value transformation
 
-> Note: this is currently the only part of `ModularComponent` that is not 100% extensible,
-> as it requires patching a shared interface in `@modular-component/core`. Because of that,
-> it is not possible to have two stages with the same name and a different transform in the
-> same application.
-
 Sometimes, the transformation that we want to apply on a value might change its type
 from the one passed as parameter. Unfortunately, as of TypeScript 4.8, there isn't
 a way still to use "generic generic types". It is therefore not possible, as far as we can tell,
@@ -308,12 +303,19 @@ The workaround implemented for now is an exposed interface, `ModularStageTransfo
 takes a generic parameter and contains a map of transformed type. An extension package
 can overload this interface to add the correct transform for the provided stage.
 
+In order to avoid clashes between multiple extensions providing a similar
+stage function name, the transform map uses _symbols_ as its key to ensure
+uniqueness. The symbol must be passed to the corresponding stage function definition.
+
 For instance, let's imagine a `withArray` stage that wraps the passed value in an array:
 
 ```tsx
+const arraySymbol = Symbol()
+
 export const WithArray = createMethodRecord({
   withArray: {
     field: 'array',
+    symbol: arraySymbol,
     transform: (args, useArray) => [
       typeof useArray === 'function' ? useArray(args) : useArray,
     ],
@@ -328,7 +330,7 @@ type:
 ```tsx
 declare module '@modular-component/core' {
   export interface ModularStageTransform<T> {
-    withArray: [T]
+    [arraySymbol]: [T]
   }
 }
 ```
@@ -428,10 +430,10 @@ const useLifecycle = MyComponent.atStage('withLifecycle').asHook('lifecycle')
 
 ## Official extensions
 
-### `@modular-component/with-default`
+### `@modular-component/default`
 
 Set of sensible defaults for using `ModularComponent`. Provides two stages:
-`withLifecycle` for adding a lifecycle hook, and `withDefaultProps` for
+`withLifecycle` for adding a lifecycle hook, and `WithDefaultProps` for
 providing default values for props.
 
 It's also possible to import each of them individually through `@modular-component/with-lifecycle`

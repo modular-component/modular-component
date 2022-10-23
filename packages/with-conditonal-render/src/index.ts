@@ -1,6 +1,9 @@
 import { createMethodRecord } from '@modular-component/core'
 import { FunctionComponent } from 'react'
 
+const withConditionalFallback = Symbol()
+const withConditionalRender = Symbol()
+
 export const WithConditionalRender = createMethodRecord({
   withCondition: {
     field: 'condition',
@@ -19,6 +22,7 @@ export const WithConditionalRender = createMethodRecord({
   withConditionalFallback: {
     field: 'render',
     multiple: true,
+    symbol: withConditionalFallback,
     transform: <
       A extends { condition?: boolean; render?: ReturnType<FunctionComponent> },
       P extends FunctionComponent<A>,
@@ -36,6 +40,7 @@ export const WithConditionalRender = createMethodRecord({
   },
   withConditionalRender: {
     field: 'render',
+    symbol: withConditionalRender,
     transform: <
       A extends { condition?: boolean; render?: ReturnType<FunctionComponent> },
       P extends FunctionComponent<A>,
@@ -55,7 +60,7 @@ export const WithConditionalRender = createMethodRecord({
 
 declare module '@modular-component/core' {
   export interface ModularStageTransform<T> {
-    withConditionalFallback: T | null
-    withConditionalRender: T | null
+    [withConditionalFallback]: T | null
+    [withConditionalRender]: T | null
   }
 }

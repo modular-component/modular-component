@@ -19,6 +19,7 @@ export type MethodEntry = {
   restrict?: unknown
   multiple?: boolean
   empty?: boolean
+  symbol?: symbol
 }
 export type MethodRecord = Record<MethodName, MethodEntry>
 
@@ -94,8 +95,11 @@ type ComputeArgs<
 
 // Check if a custom transform exists for the given argument, and apply
 // it to the current value if there is
-type TransformArg<Value, Key> = Key extends keyof ModularStageTransform<Value>
-  ? ModularStageTransform<Value>[Key]
+type TransformArg<
+  Value,
+  Symbol
+> = Symbol extends keyof ModularStageTransform<Value>
+  ? ModularStageTransform<Value>[Symbol]
   : Value
 
 // Map all computed arguments against the methods map to convert
@@ -116,7 +120,10 @@ type MapArgs<
         ? Methods[key] extends MethodEntry
           ? {
               // Extract the field name from the method
-              [k in Methods[key]['field']]: TransformArg<Args[key], key>
+              [k in Methods[key]['field']]: TransformArg<
+                Args[key],
+                Methods[key]['symbol']
+              >
             }
           : never
         : // Set to never if the arg does not exist

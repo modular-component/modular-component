@@ -4,6 +4,8 @@ import { WithDefaultStages } from '@modular-component/default'
 import { WithComponents } from '@modular-component/with-components'
 import { WithConditionalRender } from '@modular-component/with-conditional-render'
 
+const withDate = Symbol()
+
 export const ModularComponent = modularFactory
   .extend(WithDefaultStages)
   .extend(WithComponents)
@@ -11,6 +13,7 @@ export const ModularComponent = modularFactory
   .extend({
     withDate: {
       field: 'date',
+      symbol: withDate,
       transform: () => new Date(),
       restrict: undefined,
     },
@@ -31,6 +34,6 @@ export const ModularComponent = modularFactory
 
 declare module '@modular-component/core' {
   export interface ModularStageTransform<T> {
-    withDate: Date
+    [withDate]: Date
   }
 }
