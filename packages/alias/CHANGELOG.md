@@ -1,5 +1,12 @@
 # modular-component
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [d5c9031]
+  - @modular-component/core@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes
