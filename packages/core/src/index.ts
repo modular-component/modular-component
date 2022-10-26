@@ -28,18 +28,20 @@ function ModularFactory<Methods extends MethodRecord>(methods: Methods) {
         Component.displayName = displayName
 
         // Add an asHook system to get the components args as a reusable hook
-        Component.asHook = ((field: string) => (props: Props) => {
+        Component.asHook = ((field: string) => (props: Props = {} as Props) => {
           // Prepare the shared arguments object, prefilling it with the props
           // and an empty render result
-          let args = { props, children: (props as { children?: unknown }).children, render: null }
+          let args = { props, children: (props as { children?: unknown })?.children, render: null }
 
           // Run each stage in order, replacing the arguments by the response
           // from the last stage
           for (const stage of stages) {
             const method = methods[stage.key as MethodName]
             const useStage = stage.value
+
             const useTransform =
-              method.transform ??
+              // Never transform mocked stages
+              (stage.mocked ? undefined : method.transform) ??
               (() =>
                 typeof useStage === 'function'
                   ? useStage({ ...args })
@@ -76,6 +78,36 @@ function ModularFactory<Methods extends MethodRecord>(methods: Methods) {
             stages.slice(0, stageIndex + 1),
           )<Props>(displayName)
         }) as unknown as Modular<Props, CleanMethods, Stages>['atStage']
+
+        // Add a function for conveniently mocking a stage value, regardless of its transform system
+        Component.mockStage = ((key: MethodName, value: unknown) => {
+          const stage = { key, value, mocked: true }
+
+          // Find the needed stage
+          const stageIndex = (stages
+            // Map all stages to an [index, stage] tuple
+            .map((record, index) => [index, record] as const)
+            // Remove all tuples not matching our stage
+            .filter(([, record]) => record.key === key)
+            // Get the index of the very last one, or -1 if none are remaining
+            .pop() || [-1])[0]
+
+          // If the stage cannot be found, create a brand new, empty component
+          if (stageIndex === -1) {
+            return ModularFactory<Methods>(methods).build()<Props>(displayName)
+          }
+
+          // Else, replace the stage with its mock
+          const nextStages = [...stages]
+          nextStages[stageIndex] = stage
+          return ModularFactory(methods).build(nextStages)<Props>(
+            displayName,
+          )
+        }) as unknown as Modular<
+          Props,
+          CleanMethods,
+          Stages
+          >['mockStage']
 
         // Add each configured stage method to the component
         Object.keys(methods).forEach((method) => {

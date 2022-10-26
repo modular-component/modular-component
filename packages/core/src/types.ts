@@ -8,7 +8,7 @@ type UnionToIntersection<U> = [U] extends [never]
   : never
 
 // Base types used for manipulating stages
-export type StageEntry = { key: MethodName; value: unknown; stages: string }
+export type StageEntry = { key: MethodName; value: unknown; stages: string; mocked?: boolean }
 type StageList = StageEntry[]
 
 // Base type used for manipulating methods
@@ -237,6 +237,19 @@ type ModularExtension<
   >(
     stage: Key,
   ): Modular<Props, Methods, KeptStages>
+  // Replace the value returned by a stage by a mocked implementation
+  mockStage<
+    // Key of the stage to keep to
+    Key extends Stages[number]['key'],
+    // Extract the current method
+    Method extends Methods[Key] extends MethodEntry ? Methods[Key] : never,
+    // Extract the field
+    Field extends Method['field'],
+    // Get the current args
+    Args extends MapArgs<Stages, Stages[number]['key'], Methods, Props>,
+    // Get the wanted argument current value
+    Arg extends Field extends keyof Args ? Args[Field] : never
+  >(key: Key, value: Arg | (() => Arg)): Modular<Props, Methods, Stages>
   // Generate a hook instead of a component, returning the generated arguments
   asHook(): Props extends {}
     ? () => MapArgs<Stages, Stages[number]['key'], Methods, Props>

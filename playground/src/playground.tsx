@@ -61,6 +61,8 @@ const Unconditioned = Conditional.atStage(
   </UI.Stack>
 ))
 
+const AlwaysLoading = Conditional.mockStage('withLifecycle', { loading: true, reload: () => {} })
+
 export const App = ModularComponent<{ increment?: number }>()
   .withDefaultProps({ increment: 2 })
   .withLifecycle(({ props }) => {
@@ -100,6 +102,10 @@ export const App = ModularComponent<{ increment?: number }>()
 
         <UI.Card withBorder>
           <Unconditioned enabled={lifecycle.enabled} />
+        </UI.Card>
+
+        <UI.Card withBorder>
+          <AlwaysLoading enabled={lifecycle.enabled} />
         </UI.Card>
       </UI.Stack>
     </UI.Stack>
