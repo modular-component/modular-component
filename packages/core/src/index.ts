@@ -1,154 +1,208 @@
-import { MethodName, MethodRecord, Modular, StageEntry } from './types'
-import { FunctionComponent } from 'react'
+import { ForwardedRef, FunctionComponent, forwardRef, memo } from 'react'
 
-export type { Modular, ModularStageTransform, MethodRecord } from './types'
+import { ModularComponent } from './types/modular-component'
+import { MethodRecord } from './types/methods'
+import { StageTuple } from './types/stage'
 
-function ModularFactory<Methods extends MethodRecord>(methods: Methods) {
+export type { ModularStages } from './types/stage'
+
+function ModularFactory<Methods extends Record<string, MethodRecord>>(
+  methods: Methods,
+) {
   type CleanMethods = Methods extends infer U
     ? { [key in keyof U]: U[key] }
     : never
 
   return {
-    build: <Stages extends StageEntry[] = []>(
-      stages: Omit<StageEntry, 'stages'>[] = [],
-    ) => {
-      return <Props = {}>(displayName?: string) => {
+    build: <Stages extends StageTuple = []>(stages: StageTuple = []) => {
+      const factory = <Props extends {} = {}, Ref = FunctionComponent<Props>>(
+        displayName?: string,
+        options?: { memo: boolean },
+      ) => {
+        const generateAsHook =
+          (ref?: ForwardedRef<Ref>, field?: string) =>
+          () =>
+          (props: Props = {} as Props) => {
+            // Prepare the shared arguments object, prefilling it with the props
+            // and an empty render result
+            let args = {
+              props,
+              children: (props as { children?: unknown })?.children,
+              render: null,
+              ref,
+            }
+
+            const methodsArray = Object.values(methods)
+
+            // Run each stage in order, replacing the arguments by the response
+            // from the last stage
+            for (const stage of stages) {
+              const method = methodsArray.find(
+                (method) => method.symbol === stage.stage,
+              )
+
+              let useTransform =
+                // Never transform mocked stages
+                ((stage as any).mocked ? undefined : method?.transform) ??
+                (() => stage.value)
+
+              args = {
+                ...args,
+                [method?.field as keyof typeof args]: useTransform(
+                  args,
+                  stage.value,
+                ),
+              }
+            }
+
+            // Finally, return the args
+            return field ? args[field as keyof typeof args] : args
+          }
+
         // Create the actual Component. This is a simple React Functional Component
         // that will call the hooks for each registered stages in order.
-        const Component = ((props) => {
+        const Component = forwardRef<Ref, Props>((props, ref) => {
           // Prepare the shared arguments object, prefilling it with the props
           // and an empty render result
-          const useComponent = Component.asHook()
+          const useComponent = generateAsHook(ref)()
           const args = useComponent(props)
 
           return (args as unknown as { render: null }).render ?? null
-        }) as Modular<Props, CleanMethods, Stages>
+        }) as unknown as ModularComponent<Props, Ref, CleanMethods, Stages>
 
         // Set the debug display name if provided
         Component.displayName = displayName
 
         // Add an asHook system to get the components args as a reusable hook
-        Component.asHook = ((field: string) => (props: Props = {} as Props) => {
-          // Prepare the shared arguments object, prefilling it with the props
-          // and an empty render result
-          let args = { props, children: (props as { children?: unknown })?.children, render: null }
-
-          // Run each stage in order, replacing the arguments by the response
-          // from the last stage
-          for (const stage of stages) {
-            const method = methods[stage.key as MethodName]
-            const useStage = stage.value
-
-            const useTransform =
-              // Never transform mocked stages
-              (stage.mocked ? undefined : method.transform) ??
-              (() =>
-                typeof useStage === 'function'
-                  ? useStage({ ...args })
-                  : useStage)
-
-            args = {
-              ...args,
-              [method.field as keyof typeof args]: useTransform(args, useStage),
-            }
-          }
-
-          // Finally, return the args
-          return field ? args[field as keyof typeof args] : args
-        }) as unknown as Modular<Props, CleanMethods, Stages>['asHook']
-
-        // Add a function for rewinding the component up to a certain stage
-        Component.atStage = ((stage: MethodName) => {
-          // Find the needed stage
-          const stageIndex = (stages
-            // Map all stages to an [index, stage] tuple
-            .map((record, index) => [index, record] as const)
-            // Remove all tuples not matching our stage
-            .filter(([, record]) => record.key === stage)
-            // Get the index of the very last one, or -1 if none are remaining
-            .pop() || [-1])[0]
-
-          // If the stage cannot be found, create a brand new, empty component
-          if (stageIndex === -1) {
-            return ModularFactory<Methods>(methods).build()<Props>(displayName)
-          }
-
-          // Otherwise, keep all stages up to and including the found stage
-          return ModularFactory<Methods>(methods).build(
-            stages.slice(0, stageIndex + 1),
-          )<Props>(displayName)
-        }) as unknown as Modular<Props, CleanMethods, Stages>['atStage']
-
-        // Add a function for conveniently mocking a stage value, regardless of its transform system
-        Component.mockStage = ((key: MethodName, value: unknown) => {
-          const stage = { key, value, mocked: true }
-
-          // Find the needed stage
-          const stageIndex = (stages
-            // Map all stages to an [index, stage] tuple
-            .map((record, index) => [index, record] as const)
-            // Remove all tuples not matching our stage
-            .filter(([, record]) => record.key === key)
-            // Get the index of the very last one, or -1 if none are remaining
-            .pop() || [-1])[0]
-
-          // If the stage cannot be found, create a brand new, empty component
-          if (stageIndex === -1) {
-            return ModularFactory<Methods>(methods).build()<Props>(displayName)
-          }
-
-          // Else, replace the stage with its mock
-          const nextStages = [...stages]
-          nextStages[stageIndex] = stage
-          return ModularFactory(methods).build(nextStages)<Props>(
-            displayName,
-          )
-        }) as unknown as Modular<
+        Component.asHook = generateAsHook() as ModularComponent<
           Props,
+          Ref,
           CleanMethods,
           Stages
-          >['mockStage']
+        >['asHook']
 
-        // Add each configured stage method to the component
+        // Add each configured stage methods to the component
         Object.keys(methods).forEach((method) => {
-          Component[method as keyof CleanMethods] = ((value: unknown) => {
+          // Check if a stage of the same key already exists
+          const stageIndices = stages
+            // Map all stages to an [index, stage] tuple
+            .map((record, index) => [index, record] as const)
+            // Remove all tuples not matching our stage
+            .filter(([, record]) => record.stage === methods[method].symbol)
+            // Get the index
+            .map(([index]) => index)
+          const lastIndex = [...stageIndices].pop() as number
+
+          // @ts-ignore
+          Component[`with${method}`] = (
+            value: unknown,
+            forceIndex?: number,
+          ) => {
             // Prepare the new stage
-            const stage = { key: method as MethodName, value }
+            const stage = { stage: methods[method].symbol, value } as const
 
-            // For stages in "multiple" mode, simply append the stage
-            if (methods[method as MethodName].multiple) {
-              return ModularFactory(methods).build([...stages, stage])<Props>(
-                displayName,
-              )
-            }
-
-            // For other stages, check if a stage of the same key already exists
-            const index = stages.findIndex((st) => st.key === method)
+            // Check if a stage of the same key already exists
+            const stageIndex =
+              (forceIndex !== undefined
+                ? stageIndices[forceIndex]
+                : lastIndex) ?? -1
 
             // If so, copy the stages and replace the previous record
-            if (index > -1) {
+            if (stageIndex > -1) {
               const nextStages = [...stages]
-              nextStages[index] = stage
+              nextStages[stageIndex] = stage
               return ModularFactory(methods).build(nextStages)<Props>(
                 displayName,
               )
             }
 
-            // Otherwise, append the stage as in multiple mode
+            // Otherwise, append the stage
             return ModularFactory(methods).build([...stages, stage])<Props>(
               displayName,
             )
-          }) as unknown as Modular<
-            Props,
-            CleanMethods,
-            Stages
-          >[keyof CleanMethods]
+          }
+
+          // @ts-ignore
+          Component[`add${method}`] =
+            stageIndices.length < 1
+              ? undefined
+              : (value: unknown) => {
+                  // Prepare the new stage
+                  const stage = {
+                    stage: methods[method].symbol,
+                    value,
+                  } as const
+
+                  // Append the stage as in multiple mode
+                  return ModularFactory(methods).build([
+                    ...stages,
+                    stage,
+                  ])<Props>(displayName)
+                }
+
+          // @ts-ignore
+          Component[`at${method}`] =
+            stageIndices.length < 1
+              ? undefined
+              : (forceIndex?: number) => {
+                  // Find the needed stage
+                  const stageIndex =
+                    (forceIndex !== undefined
+                      ? stageIndices[forceIndex]
+                      : lastIndex) ?? lastIndex
+
+                  // Otherwise, keep all stages up to and including the found stage
+                  return ModularFactory<Methods>(methods).build(
+                    stages.slice(0, stageIndex + 1),
+                  )<Props>(displayName)
+                }
+
+          // @ts-ignore
+          Component[`mock${method}`] =
+            stageIndices.length < 1
+              ? undefined
+              : (value: unknown, forceIndex?: number) => {
+                  // Prepare the mocked stage
+                  const stage = {
+                    stage: methods[method].symbol,
+                    value,
+                    mocked: true,
+                  } as const
+
+                  // Find the needed stage
+                  const stageIndex =
+                    (forceIndex !== undefined
+                      ? stageIndices[forceIndex]
+                      : lastIndex) ?? lastIndex
+
+                  // Replace the stage with its mock
+                  const nextStages = [...stages]
+                  nextStages[stageIndex] = stage
+                  return ModularFactory(methods).build(nextStages)<Props>(
+                    displayName,
+                  )
+                }
+
+          const capitalize = (str: string) =>
+            str[0].toUpperCase() + str.slice(1)
+
+          // @ts-ignore
+          Component[`asUse${capitalize(methods[method].field)}`] =
+            generateAsHook(undefined, methods[method].field)
         })
 
-        return Component
+        return (options?.memo ? memo(Component) : Component) as typeof Component
       }
+
+      factory.memo = <Props extends {} = {}, Ref = FunctionComponent<Props>>(
+        displayName?: string,
+      ) => factory<Props, Ref>(displayName, { memo: true })
+
+      return factory
     },
-    extend: <_Methods extends MethodRecord>(_methods: _Methods) => {
+    extend: <_Methods extends Record<string, MethodRecord>>(
+      _methods: _Methods,
+    ) => {
       return ModularFactory<Methods & _Methods>({
         ...methods,
         ..._methods,
@@ -157,13 +211,29 @@ function ModularFactory<Methods extends MethodRecord>(methods: Methods) {
   }
 }
 
+const withRender = Symbol()
+
+declare module './types/stage' {
+  export interface ModularStages<Args, Value> {
+    [withRender]: {
+      restrict: FunctionComponent<Args>
+      transform: ReturnType<
+        Value extends FunctionComponent<Args> ? Value : never
+      >
+    }
+  }
+}
+
 export const modularFactory = ModularFactory({
-  withRender: {
+  Render: {
+    symbol: withRender,
     field: 'render',
-    restrict: {} as ReturnType<FunctionComponent>,
+    transform: (args, useStage) => useStage(args),
   },
 } as const)
 
-export function createMethodRecord<R extends MethodRecord>(record: R): R {
+export function createMethodRecord<R extends Record<string, MethodRecord>>(
+  record: R,
+): R {
   return record
 }

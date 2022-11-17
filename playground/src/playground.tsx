@@ -20,15 +20,19 @@ const useSharedLifecycle = ModularComponent()
 
     return [loading, setLoading] as const
   })
-  .asHook('lifecycle')
+  .asUseLifecycle()
 
-const Conditional = ModularComponent<{ enabled?: boolean; other?: boolean }>()
-  .withDate()
+const Conditional = ModularComponent<
+  { enabled?: boolean; other?: boolean },
+  HTMLDivElement
+>()
+  .withDate(undefined)
   .withDefaultProps({ enabled: false })
+  .withLocale('components.Conditional')
   .withComponents({ Loading, Disabled })
   .withCondition(({ props }) => props.enabled)
   .withConditionalFallback(({ components }) => <components.Disabled />)
-  .withLifecycle(() => {
+  .withLifecycle(({ condition, props }) => {
     const [loading, setLoading] = useSharedLifecycle()
 
     React.useEffect(() => {
@@ -39,29 +43,44 @@ const Conditional = ModularComponent<{ enabled?: boolean; other?: boolean }>()
 
     return { loading, reload: () => setLoading(true) }
   })
-  .withCondition(({ lifecycle }) => !lifecycle.loading)
-  .withConditionalFallback(({ components }) => <components.Loading />)
-  .withConditionalRender(({ lifecycle, date }) => (
+  .addCondition(({ lifecycle }) => !lifecycle.loading)
+  .addConditionalFallback(({ components }) => <components.Loading />)
+  .withConditionalRender(({ lifecycle, date, locale }) => (
     <UI.Stack>
-      <UI.Text align="center">Loaded!</UI.Text>
+      <UI.Text align="center">{locale('loaded')}</UI.Text>
       <UI.Text align="center" color="dimmed">
-        Last loaded on {date.toISOString()}
+        {locale('lastLoadedOn', { date: date.toISOString() })}
       </UI.Text>
-      <UI.Button onClick={lifecycle.reload}>Reload</UI.Button>
+      <UI.Button onClick={lifecycle.reload}>{locale('reload')}</UI.Button>
     </UI.Stack>
   ))
 
-const Unconditioned = Conditional.atStage(
-  'withLifecycle',
-).withConditionalRender(({ lifecycle }) => (
-  <UI.Stack>
-    <UI.Text align="center">Loaded without waiting!</UI.Text>
-    <UI.Button onClick={lifecycle.reload}>Reload</UI.Button>
-    <pre>{JSON.stringify({ lifecycle }, null, 2)}</pre>
-  </UI.Stack>
-))
+const Unconditioned = Conditional.atLifecycle()
+  .withLocale('components.Unconditioned')
+  .withConditionalRender(({ lifecycle, locale }) => (
+    <UI.Stack>
+      <UI.Text align="center">{locale('noWait')}</UI.Text>
+      <UI.Button onClick={lifecycle.reload}>{locale('reload')}</UI.Button>
+      <pre>{JSON.stringify({ lifecycle }, null, 2)}</pre>
+    </UI.Stack>
+  ))
 
-const AlwaysLoading = Conditional.mockStage('withLifecycle', { loading: true, reload: () => {} })
+const AlwaysLoading = Conditional.withLifecycle(() => ({
+  hello: 'world',
+  loading: true,
+  reload: () => {},
+}))
+
+const AlwaysLoadingMock = Conditional.mockLifecycle({
+  loading: true,
+  reload: () => {},
+})
+
+const AlwaysLoadingCond = Conditional.mockCondition(true, 0).mockCondition(
+  false,
+  1,
+)
+const AlwaysDisabled = Conditional.mockCondition(false, 0)
 
 export const App = ModularComponent<{ increment?: number }>()
   .withDefaultProps({ increment: 2 })
@@ -106,6 +125,14 @@ export const App = ModularComponent<{ increment?: number }>()
 
         <UI.Card withBorder>
           <AlwaysLoading enabled={lifecycle.enabled} />
+        </UI.Card>
+
+        <UI.Card withBorder>
+          <AlwaysDisabled enabled={lifecycle.enabled} />
+        </UI.Card>
+
+        <UI.Card withBorder>
+          <AlwaysLoadingCond enabled={lifecycle.enabled} />
         </UI.Card>
       </UI.Stack>
     </UI.Stack>
