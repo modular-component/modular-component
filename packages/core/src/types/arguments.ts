@@ -20,7 +20,9 @@ export type ComputeArguments<
 > = {
   props: Props extends { children: unknown } ? Props : PropsWithChildren<Props>
   ref: Ref
-  children: Props extends { children: infer C } ? C : PropsWithChildren['children']
+  children: Props extends { children: infer C }
+    ? C
+    : PropsWithChildren['children']
 } & (Stages['length'] extends 0
   ? {}
   : UnionToIntersection<

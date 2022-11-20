@@ -1,10 +1,10 @@
-import { modularFactory } from '@modular-component/core'
+import { modularFactory, createMethodRecord } from '@modular-component/core'
 import { WithDefaultStages } from '@modular-component/default'
 import { WithComponents } from '@modular-component/with-components'
 import { WithConditionalRender } from '@modular-component/with-conditional-render'
 
 import { useTranslation } from 'react-i18next'
-import { TFunction, TFuncKey } from 'i18next'
+import type { TFunction, TFuncKey, i18n } from 'i18next'
 
 import './i18n'
 
@@ -25,24 +25,23 @@ declare module '@modular-component/core' {
   }
 }
 
+const stages = createMethodRecord({
+  Locale: {
+    symbol: withLocale,
+    field: 'locale',
+    transform: (_, keyPrefix: TFuncKey) =>
+      useTranslation('translation', { keyPrefix }).t,
+  },
+  Date: {
+    symbol: withDate,
+    field: 'date',
+    transform: () => new Date(),
+  },
+})
+
 export const ModularComponent = modularFactory
   .extend(WithDefaultStages)
   .extend(WithComponents)
   .extend(WithConditionalRender)
-  .extend({
-    Locale: {
-      symbol: withLocale,
-      field: 'locale',
-      transform: <A, P>(args: A, useKey: P) => {
-        const key = typeof useKey === 'function' ? useKey(args) : useKey
-
-        return useTranslation('translation', { keyPrefix: key }).t
-      },
-    },
-    Date: {
-      symbol: withDate,
-      field: 'date',
-      transform: () => new Date(),
-    },
-  })
+  .extend(stages)
   .build()

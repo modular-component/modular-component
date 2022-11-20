@@ -28,7 +28,9 @@ interface ModularWithMethodDefault<
   Arguments extends {} = ComputeArguments<Props, Ref, Methods, Stages>,
 > {
   <Value extends RestrictValue<Arguments, Symbol>>(
-    ...args: undefined extends RestrictValue<Arguments, Symbol> ? [value?: Value] : [value: Value]
+    ...args: undefined extends RestrictValue<Arguments, Symbol>
+      ? [value?: Value]
+      : [value: Value]
   ): ModularComponent<
     Props,
     Ref,
@@ -60,6 +62,10 @@ interface ModularWithMethodIndices<
       validate: infer V
     }
       ? V
+      : ModularStages<Arguments, Value>[Symbol] extends {
+          transform: infer V
+        }
+      ? V
       : Value,
     PreviousValid extends ModularStages<
       Arguments,
@@ -67,6 +73,10 @@ interface ModularWithMethodIndices<
     >[Symbol] extends {
       validate: infer V
     }
+      ? V
+      : ModularStages<Arguments, PreviousValue>[Symbol] extends {
+          transform: infer V
+        }
       ? V
       : PreviousValue,
     ValidValue extends [Valid] extends [PreviousValid] ? true : false,
@@ -108,6 +118,10 @@ interface ModularWithMethodLast<
       validate: infer V
     }
       ? V
+      : ModularStages<Arguments, Value>[Symbol] extends {
+          transform: infer V
+        }
+      ? V
       : Value,
     PreviousValid extends ModularStages<
       Arguments,
@@ -116,10 +130,16 @@ interface ModularWithMethodLast<
       validate: infer V
     }
       ? V
+      : ModularStages<Arguments, PreviousValue>[Symbol] extends {
+          transform: infer V
+        }
+      ? V
       : PreviousValue,
     ValidValue extends [Valid] extends [PreviousValid] ? true : false,
   >(
-    ...args: undefined extends PreviousValue ? [value?: ValidValue extends true ? Value : PreviousValue] : [value: ValidValue extends true ? Value : PreviousValue]
+    ...args: undefined extends PreviousValue
+      ? [value?: ValidValue extends true ? Value : PreviousValue]
+      : [value: ValidValue extends true ? Value : PreviousValue]
   ): ModularComponent<
     Props,
     Ref,
