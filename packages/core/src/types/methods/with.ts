@@ -25,7 +25,7 @@ interface ModularWithMethodDefault<
   Stages extends StageTuple,
   Method extends keyof Methods,
   Symbol extends keyof ModularStages = Methods[Method]['symbol'],
-  Arguments extends {} = ComputeArguments<Props, Methods, Stages>,
+  Arguments extends {} = ComputeArguments<Props, Ref, Methods, Stages>,
 > {
   <Value extends RestrictValue<Arguments, Symbol>>(
     value: Value,
@@ -49,6 +49,7 @@ interface ModularWithMethodIndices<
   <
     Arguments extends ComputeArguments<
       Props,
+      Ref,
       Methods,
       BeforeStage<Stages, StageIndex>
     >,
@@ -94,6 +95,7 @@ interface ModularWithMethodLast<
   Symbol extends keyof ModularStages = Methods[Method]['symbol'],
   Arguments extends {} = ComputeArguments<
     Props,
+    Ref,
     Methods,
     BeforeStage<Stages, Index>
   >,

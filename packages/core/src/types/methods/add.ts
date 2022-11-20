@@ -22,7 +22,7 @@ interface ModularAddMethod<
 > {
   <
     Value extends RestrictValue<Arguments, Symbol>,
-    Arguments extends ComputeArguments<Props, Methods, Stages>,
+    Arguments extends ComputeArguments<Props, Ref, Methods, Stages>,
   >(
     value: Value,
   ): ModularComponent<

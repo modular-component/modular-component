@@ -3,11 +3,13 @@
  * set of stages
  */
 
+import { PropsWithChildren } from 'react'
 import { StageTuple, ModularStages, BeforeStage, CleanUpStages } from './stage'
 import { UnionToIntersection } from './utils'
 
 export type ComputeArguments<
   Props extends {},
+  Ref,
   Methods extends Record<
     string,
     { symbol: keyof ModularStages; field: string }
@@ -15,7 +17,11 @@ export type ComputeArguments<
   Stages extends StageTuple,
   CleanedStages extends StageTuple = CleanUpStages<Stages>,
   MethodList = Methods[keyof Methods],
-> = { props: Props } & (Stages['length'] extends 0
+> = {
+  props: Props extends { children: unknown } ? Props : PropsWithChildren<Props>
+  ref: Ref
+  children: Props extends { children: infer C } ? C : PropsWithChildren['children']
+} & (Stages['length'] extends 0
   ? {}
   : UnionToIntersection<
       {
@@ -27,6 +33,7 @@ export type ComputeArguments<
               [k in F extends string ? F : never]: ModularStages<
                 ComputeArguments<
                   Props,
+                  Ref,
                   Methods,
                   BeforeStage<CleanedStages, key>
                 >,

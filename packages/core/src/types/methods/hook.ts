@@ -13,7 +13,7 @@ export type ModularHookMethods<
   Ref,
   Methods extends Record<string, MethodRecord>,
   Stages extends StageTuple,
-  Arguments extends {} = ComputeArguments<Props, Methods, Stages>,
+  Arguments extends {} = ComputeArguments<Props, Ref, Methods, Stages>,
 > = {
   asHook(): keyof Props extends never
     ? () => Arguments

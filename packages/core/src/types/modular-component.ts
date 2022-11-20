@@ -2,7 +2,7 @@
  * Main ModularComponent type
  */
 
-import { ForwardedRef, FunctionComponent } from 'react'
+import { ForwardedRef, FunctionComponent, PropsWithChildren } from 'react'
 
 import { StageTuple } from './stage'
 import { MethodRecord } from './methods'
@@ -22,4 +22,4 @@ export type ModularComponent<
   ModularAtMethods<Props, Ref, Methods, Stages> &
   ModularMockMethods<Props, Ref, Methods, Stages> &
   ModularHookMethods<Props, Ref, Methods, Stages> &
-  FunctionComponent<Props & { ref?: ForwardedRef<Ref> }>
+  FunctionComponent<PropsWithChildren<Props & { ref?: ForwardedRef<Ref> }>>

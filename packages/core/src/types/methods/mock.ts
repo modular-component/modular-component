@@ -22,6 +22,7 @@ interface ModularMockMethodIndices<
   <
     Arguments extends ComputeArguments<
       Props,
+      Ref,
       Methods,
       BeforeStage<Stages, StageIndex>
     >,
