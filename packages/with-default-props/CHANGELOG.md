@@ -1,5 +1,12 @@
 # @modular-component/with-default-props
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies [bf87a1c]
+  - @modular-component/core@0.1.5
+
 ## 0.1.4
 
 ### Patch Changes
