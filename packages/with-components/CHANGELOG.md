@@ -1,5 +1,14 @@
 # @modular-component/with-components
 
+## 0.1.4
+
+### Patch Changes
+
+- 820a836: Refactor tuple system for better typescript performance
+- Updated dependencies [f7af9ea]
+- Updated dependencies [820a836]
+  - @modular-component/core@0.1.4
+
 ## 0.1.3
 
 ### Patch Changes
