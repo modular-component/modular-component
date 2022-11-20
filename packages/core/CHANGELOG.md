@@ -1,5 +1,12 @@
 # @modular-component/core
 
+## 0.1.4
+
+### Patch Changes
+
+- f7af9ea: Add a mockStage function to easily mock stage by value instead of parameter
+- 820a836: Refactor tuple system for better typescript performance
+
 ## 0.1.3
 
 ### Patch Changes
