@@ -28,7 +28,7 @@ interface ModularWithMethodDefault<
   Arguments extends {} = ComputeArguments<Props, Ref, Methods, Stages>,
 > {
   <Value extends RestrictValue<Arguments, Symbol>>(
-    value: Value,
+    ...args: undefined extends RestrictValue<Arguments, Symbol> ? [value?: Value] : [value: Value]
   ): ModularComponent<
     Props,
     Ref,
@@ -119,7 +119,7 @@ interface ModularWithMethodLast<
       : PreviousValue,
     ValidValue extends [Valid] extends [PreviousValid] ? true : false,
   >(
-    value: ValidValue extends true ? Value : PreviousValue,
+    ...args: undefined extends PreviousValue ? [value?: ValidValue extends true ? Value : PreviousValue] : [value: ValidValue extends true ? Value : PreviousValue]
   ): ModularComponent<
     Props,
     Ref,

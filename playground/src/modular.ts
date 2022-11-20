@@ -16,7 +16,7 @@ declare module '@modular-component/core' {
     [withLocale]: {
       transform: TFunction<'translation', Value>
       validate: (key: TFuncKey<'translation', Value>) => string
-      restrict: TFuncKey
+      restrict?: TFuncKey
     }
     [withDate]: {
       restrict: undefined

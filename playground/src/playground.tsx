@@ -26,7 +26,7 @@ const Conditional = ModularComponent<
   { enabled?: boolean; other?: boolean },
   HTMLDivElement
 >()
-  .withDate(undefined)
+  .withDate()
   .withDefaultProps({ enabled: false })
   .withLocale('components.Conditional')
   .withComponents({ Loading, Disabled })
