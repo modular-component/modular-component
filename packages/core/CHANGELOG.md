@@ -1,5 +1,11 @@
 # @modular-component/core
 
+## 0.1.6
+
+### Patch Changes
+
+- 5b8bc33: Use transform value for stage validation when validate is not set
+
 ## 0.1.5
 
 ### Patch Changes
