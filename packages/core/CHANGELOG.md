@@ -1,5 +1,11 @@
 # @modular-component/core
 
+## 0.1.5
+
+### Patch Changes
+
+- bf87a1c: Fix with and add signature when restrict accepts undefined
+
 ## 0.1.4
 
 ### Patch Changes
