@@ -1,5 +1,11 @@
 # @modular-component/core
 
+## 0.1.7
+
+### Patch Changes
+
+- 31f2966: Add before{Stage} stage methods
+
 ## 0.1.6
 
 ### Patch Changes
