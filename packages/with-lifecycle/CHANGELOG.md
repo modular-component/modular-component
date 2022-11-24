@@ -1,5 +1,12 @@
 # @modular-component/with-lifecycle
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [31f2966]
+  - @modular-component/core@0.1.7
+
 ## 0.1.6
 
 ### Patch Changes
