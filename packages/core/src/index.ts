@@ -177,7 +177,7 @@ function ModularFactory<Methods extends Record<string, MethodRecord>>(
           // @ts-ignore
           Component[`mock${method}`] =
             stageIndices.length < 1
-              ? () => Component
+              ? () => Component as unknown
               : (value: unknown, forceIndex?: number) => {
                   // Prepare the mocked stage
                   const stage = {
