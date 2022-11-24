@@ -158,9 +158,26 @@ function ModularFactory<Methods extends Record<string, MethodRecord>>(
                 }
 
           // @ts-ignore
-          Component[`mock${method}`] =
+          Component[`before${method}`] =
             stageIndices.length < 1
               ? undefined
+              : (forceIndex?: number) => {
+                // Find the needed stage
+                const stageIndex =
+                  (forceIndex !== undefined
+                    ? stageIndices[forceIndex]
+                    : lastIndex) ?? lastIndex
+
+                // Otherwise, keep all stages up to but excluding the found stage
+                return ModularFactory<Methods>(methods).build(
+                  stages.slice(0, stageIndex),
+                )<Props>(displayName)
+              }
+
+          // @ts-ignore
+          Component[`mock${method}`] =
+            stageIndices.length < 1
+              ? () => Component
               : (value: unknown, forceIndex?: number) => {
                   // Prepare the mocked stage
                   const stage = {

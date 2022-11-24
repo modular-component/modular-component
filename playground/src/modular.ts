@@ -4,7 +4,7 @@ import { WithComponents } from '@modular-component/with-components'
 import { WithConditionalRender } from '@modular-component/with-conditional-render'
 
 import { useTranslation } from 'react-i18next'
-import type { TFunction, TFuncKey, i18n } from 'i18next'
+import type { TFunction, TFuncKey } from 'i18next'
 
 import './i18n'
 
@@ -15,8 +15,8 @@ declare module '@modular-component/core' {
   export interface ModularStages<Args, Value> {
     [withLocale]: {
       transform: TFunction<'translation', Value>
-      validate: (key: TFuncKey<'translation', Value>) => string
-      restrict?: TFuncKey
+      validate: (key: TFuncKey<'translation', Value>) => void
+      restrict?: TFuncKey<'translation'>
     }
     [withDate]: {
       restrict: undefined
@@ -29,7 +29,7 @@ const stages = createMethodRecord({
   Locale: {
     symbol: withLocale,
     field: 'locale',
-    transform: (_, keyPrefix: TFuncKey) =>
+    transform: (_, keyPrefix: TFuncKey<'translation'>) =>
       useTranslation('translation', { keyPrefix }).t,
   },
   Date: {

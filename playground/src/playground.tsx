@@ -81,6 +81,16 @@ const AlwaysLoadingCond = Conditional.mockCondition(true, 0).mockCondition(
   1,
 )
 const AlwaysDisabled = Conditional.mockCondition(false, 0)
+const NoLoadingCondition = Conditional
+  .beforeCondition()
+  .withLocale('components.Unconditioned')
+  .withConditionalRender(({ lifecycle, locale }) => (
+    <UI.Stack>
+      <UI.Text align="center">{locale('noWait')}</UI.Text>
+      <UI.Button onClick={lifecycle.reload}>{locale('reload')}</UI.Button>
+      <pre>{JSON.stringify({ lifecycle }, null, 2)}</pre>
+    </UI.Stack>
+  ))
 
 export const App = ModularComponent<{ increment?: number }>()
   .withDefaultProps({ increment: 2 })
@@ -121,6 +131,10 @@ export const App = ModularComponent<{ increment?: number }>()
 
         <UI.Card withBorder>
           <Unconditioned enabled={lifecycle.enabled} />
+        </UI.Card>
+
+        <UI.Card withBorder>
+          <NoLoadingCondition enabled={lifecycle.enabled} />
         </UI.Card>
 
         <UI.Card withBorder>
