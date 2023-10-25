@@ -1,74 +1,42 @@
-import { createMethodRecord } from '@modular-component/core'
+import React, { FunctionComponent } from 'react'
+import { ModularStage } from '@modular-component/core'
 
-import { FunctionComponent } from 'react'
+export function condition<Args, Name extends string>(
+  name: Name,
+  useCondition: (args: Args) => boolean,
+): ModularStage<Name, (args: Args) => boolean> {
+  return { field: name, useStage: useCondition }
+}
 
-const withCondition = Symbol()
-const withConditionalFallback = Symbol()
-const withConditionalRender = Symbol()
-
-declare module '@modular-component/core' {
-  export interface ModularStages<Args, Value> {
-    [withCondition]: {
-      restrict: (args: Args) => boolean
-      transform: ReturnType<
-        Value extends (args: Args) => boolean ? Value : never
-      >
-    }
-    [withConditionalFallback]: {
-      restrict: FunctionComponent<Args>
-      transform: ReturnType<FunctionComponent<Args>> | null
-    }
-    [withConditionalRender]: {
-      restrict: FunctionComponent<Args>
-      transform: ReturnType<FunctionComponent<Args>> | null
-    }
+export function conditionalFallback<
+  Args extends { [key in Name]: boolean } & {
+    render?: ReturnType<FunctionComponent>
+  },
+  Name extends string,
+>(
+  name: Name,
+  useRender: (args: Args) => ReturnType<FunctionComponent>,
+): ModularStage<`render-${Name}`, (args: Args) => void> {
+  return {
+    field: `render-${name}`,
+    useStage: (args: Args) => {
+      args.render = !args[name] || args.render ? args.render : useRender(args)
+    },
   }
 }
 
-export const WithConditionalRender = createMethodRecord({
-  Condition: {
-    symbol: withCondition,
-    field: 'condition',
-    transform: <
-      A extends { condition?: boolean },
-      C extends (args: A) => boolean,
-    >(
-      args: A,
-      useCondition: C,
-    ) => args.condition !== false && useCondition(args),
-  },
-  ConditionalRender: {
-    symbol: withConditionalRender,
+export function conditionalRender<Args, Ref>(
+  useRender: (
+    args: Args,
+    ref: React.ForwardedRef<Ref>,
+  ) => ReturnType<FunctionComponent>,
+): ModularStage<
+  'render',
+  (args: Args, ref: React.ForwardedRef<Ref>) => ReturnType<FunctionComponent>
+> {
+  return {
     field: 'render',
-    transform: <
-      A extends { condition?: boolean; render?: ReturnType<FunctionComponent> },
-      P extends FunctionComponent<A>,
-    >(
-      args: A,
-      useRender: P,
-    ) => {
-      if (args.condition === false) {
-        return args.render
-      }
-
-      return useRender(args)
-    },
-  },
-  ConditionalFallback: {
-    symbol: withConditionalFallback,
-    field: 'render',
-    transform: <
-      A extends { condition?: boolean; render?: ReturnType<FunctionComponent> },
-      P extends FunctionComponent<A>,
-    >(
-      args: A,
-      useRender: P,
-    ) => {
-      if (args.condition !== false || args.render) {
-        return args.render
-      }
-
-      return useRender(args)
-    },
-  },
-} as const)
+    useStage: (args: Args, ref: React.ForwardedRef<Ref>) =>
+      (args as any).render ?? useRender(args, ref),
+  }
+}

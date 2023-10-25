@@ -27,11 +27,12 @@
     "license": "cp ../../LICENSE ./LICENSE"
   },
   "dependencies": {
+    "@modular-component/core": "0.1.7",
     "@modular-component/with-default-props": "0.1.7",
     "@modular-component/with-lifecycle": "0.1.7"
   },
   "devDependencies": {
-    "typescript": "^4.6.4"
+    "typescript": "^5.2.2"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts"

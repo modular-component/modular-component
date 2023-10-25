@@ -1,47 +1,29 @@
-import { modularFactory, createMethodRecord } from '@modular-component/core'
-import { WithDefaultStages } from '@modular-component/default'
-import { WithComponents } from '@modular-component/with-components'
-import { WithConditionalRender } from '@modular-component/with-conditional-render'
+import { ModularStage } from '@modular-component/core'
 
 import { useTranslation } from 'react-i18next'
-import type { TFunction, TFuncKey } from 'i18next'
+import type { TFuncKey, TFunction } from 'i18next'
 
 import './i18n'
 
-const withLocale = Symbol()
-const withDate = Symbol()
+export { ModularComponent as Component } from '@modular-component/core'
+export { components } from '@modular-component/with-components'
+export * from '@modular-component/with-conditional-render'
+export * from '@modular-component/default'
 
-declare module '@modular-component/core' {
-  export interface ModularStages<Args, Value> {
-    [withLocale]: {
-      transform: TFunction<'translation', Value>
-      validate: (key: TFuncKey<'translation', Value>) => void
-      restrict?: TFuncKey<'translation'>
-    }
-    [withDate]: {
-      restrict: undefined
-      transform: Date
-    }
+export function locale<Key extends TFuncKey<'translation'> = never>(
+  key?: Key,
+): ModularStage<
+  'locale',
+  () => [Key] extends [never] ? TFunction<'translation'> :
+    | TFunction<'translation', Key>
+    | ((key: TFuncKey<'translation', Key>) => string)
+> {
+  return {
+    field: 'locale',
+    useStage: () => useTranslation('translation', { keyPrefix: key }).t,
   }
 }
 
-const stages = createMethodRecord({
-  Locale: {
-    symbol: withLocale,
-    field: 'locale',
-    transform: (_, keyPrefix: TFuncKey<'translation'>) =>
-      useTranslation('translation', { keyPrefix }).t,
-  },
-  Date: {
-    symbol: withDate,
-    field: 'date',
-    transform: () => new Date(),
-  },
-})
-
-export const ModularComponent = modularFactory
-  .extend(WithDefaultStages)
-  .extend(WithComponents)
-  .extend(WithConditionalRender)
-  .extend(stages)
-  .build()
+export function date(): ModularStage<'date', () => Date> {
+  return { field: 'date', useStage: () => new Date() }
+}

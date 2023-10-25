@@ -1,17 +1,8 @@
 import { ComponentType } from 'react'
+import { ModularStage } from '@modular-component/core'
 
-import { createMethodRecord } from '@modular-component/core'
-
-const withComponents = Symbol()
-
-declare module '@modular-component/core' {
-  export interface ModularStages<Args, Value> {
-    [withComponents]: {
-      restrict: Record<string, ComponentType>
-    }
-  }
+export function components<Components extends Record<string, ComponentType>>(
+  components: Components,
+): ModularStage<'components', () => Components> {
+  return { field: 'components', useStage: () => components }
 }
-
-export const WithComponents = createMethodRecord({
-  Components: { symbol: withComponents, field: 'components' },
-} as const)

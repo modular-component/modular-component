@@ -1,33 +1,29 @@
-import { createMethodRecord } from '@modular-component/core'
+import { ModularStage } from '@modular-component/core'
 
-const withDefaultProps = Symbol()
-
-declare module '@modular-component/core' {
-  export interface ModularStages<Args, Value> {
-    [withDefaultProps]: {
-      restrict:
-        | Partial<Args extends { props: infer P } ? P : {}>
-        | ((args: Args) => Partial<Args extends { props: infer P } ? P : {}>)
-      transform: Value extends ((args: Args) => infer T) | infer T
-        ? Args extends { props: infer P }
-          ? {
-              [key in keyof T]: key extends keyof P
-                ? NonNullable<P[key]>
-                : T[key]
-            }
-          : Value
-        : never
-    }
-  }
+type Merge<Props, DefaultProps extends Partial<Props>> = {
+  [key in keyof Props | keyof DefaultProps]-?: key extends keyof Props
+    ? key extends keyof DefaultProps
+      ? NonNullable<Props[key]>
+      : Props[key]
+    : DefaultProps[key]
 }
 
-export const WithDefaultProps = createMethodRecord({
-  DefaultProps: {
-    symbol: withDefaultProps,
+export function defaultProps<
+  Args extends { props: {} },
+  Props extends Args extends { props: infer U } ? U : {},
+  DefaultProps extends Partial<Props>,
+>(
+  defaultProps: DefaultProps | ((args: Args) => DefaultProps),
+): ModularStage<
+  'props',
+  (args: Args) => Merge<Props, DefaultProps>
+> {
+  return {
     field: 'props',
-    transform: <A extends { props: {} }, P>(args: A, useProps: P) => ({
-      ...(typeof useProps === 'function' ? useProps(args) : useProps),
-      ...args.props,
-    }),
-  },
-} as const)
+    useStage: (args: Args) =>
+      ({
+        ...(typeof defaultProps === 'function' ? defaultProps(args) : defaultProps),
+        ...args.props,
+      } as Merge<Props, DefaultProps>),
+  }
+}
