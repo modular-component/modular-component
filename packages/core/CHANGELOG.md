@@ -1,5 +1,11 @@
 # @modular-component/core
 
+## 0.2.0
+
+### Minor Changes
+
+- 83d453f: Rework API for better TypeScript performance and improved DX
+
 ## 0.1.7
 
 ### Patch Changes
