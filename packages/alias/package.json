@@ -7,7 +7,7 @@
     "Factory",
     "Test"
   ],
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "license": "MIT",
   "publishConfig": {
@@ -24,7 +24,7 @@
     "license": "cp ../../LICENSE ./LICENSE"
   },
   "dependencies": {
-    "@modular-component/core": "0.2.0"
+    "@modular-component/core": "0.2.1"
   },
   "devDependencies": {
     "typescript": "^5.2.2"
