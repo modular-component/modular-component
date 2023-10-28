@@ -14,15 +14,14 @@ export function defaultProps<
   DefaultProps extends Partial<Props>,
 >(
   defaultProps: DefaultProps | ((args: Args) => DefaultProps),
-): ModularStage<
-  'props',
-  (args: Args) => Merge<Props, DefaultProps>
-> {
+): ModularStage<'props', (args: Args) => Merge<Props, DefaultProps>> {
   return {
     field: 'props',
     useStage: (args: Args) =>
       ({
-        ...(typeof defaultProps === 'function' ? defaultProps(args) : defaultProps),
+        ...(typeof defaultProps === 'function'
+          ? defaultProps(args)
+          : defaultProps),
         ...args.props,
       } as Merge<Props, DefaultProps>),
   }

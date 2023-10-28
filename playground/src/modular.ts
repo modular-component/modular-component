@@ -14,9 +14,11 @@ export function locale<Key extends TFuncKey<'translation'> = never>(
   key?: Key,
 ): ModularStage<
   'locale',
-  () => [Key] extends [never] ? TFunction<'translation'> :
-    | TFunction<'translation', Key>
-    | ((key: TFuncKey<'translation', Key>) => string)
+  () => [Key] extends [never]
+    ? TFunction<'translation'>
+    :
+        | TFunction<'translation', Key>
+        | ((key: TFuncKey<'translation', Key>) => string)
 > {
   return {
     field: 'locale',

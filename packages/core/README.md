@@ -11,22 +11,20 @@ yarn add @modular-component/core
 
 ```tsx
 // Usage in apps
-import { modularFactory } from '@modular-component/core'
+import { ModularComponent, render } from '@modular-component/core'
 
-const ModularComponent = modularFactory.build()
-
-const MyComponent = ModularComponent().withRender(() => (
+const MyComponent = ModularComponent().with(render(() => (
   <div>Hello Modular!</div>
-))
+)))
 ```
 
 ```tsx
 // Usage in extensions
-import { createMethodRecord } from '@modular-component/core'
+import { ModularStage } from '@modular-component/core'
 
-export const WithExtension = createMethodRecord({
-  field: 'extension',
-} as const)
+export function extension(): ModularStage<'field', () => void> {
+  return { field: 'field', useStage: () => {} }
+}
 ```
 
 ## Learn more

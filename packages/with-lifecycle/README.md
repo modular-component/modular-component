@@ -1,84 +1,36 @@
-# `@modular-component/with-lifecycle`
 
-Provides a `withLifecycle` stage allowing to define a lifecycle hook,
-thus keeping all component logic isolated from the render phase.
+# @modular-component/with-lifecycle
 
-Also useful for tests, as the lifecycle and render phases can be tested
-in isolation.
+Basic stage allowing to save the result of a custom hook to a `lifecycle` argument passed down to further stages.
+The lifecycle hook receives the previous argument map as parameter, and can therefore use props or any other
+injected argument.
 
-## Installation and usage
-
-```bash
-yarn add @modular-component/core @modular-component/with-lifecycle
-```
+## Usage
 
 ```tsx
-import { useState } from 'react'
+import { ModularComponent } from '@modular-component/core'
+import { lifecycle } from '@modular-component/with-lifecycle'
 
-import { modularFactory } from '@modular-component/core'
-import { WithLifecycle } from '@modular-component/with-lifecycle'
-
-const ModularComponent = modularFactory.extend(WithLifecycle).build()
-
-const MyModularComponent = ModularComponent()
-  .withLifecycle(() => {
-    const [count, setCount] = useState(0)
-
-    const increment = () => setCount((c) => c + 1)
-    const decrement = () => setCount((c) => c - 1)
-
-    return {
-      count,
-      increment,
-      decrement,
-    }
-  })
-  .withRender(({ lifecycle }) => (
-    <>
-      <pre>Count: {count}</pre>
-      <button onClick={lifecycle.increment}>Increment</button>
-      <button onClick={lifecycle.decrement}>Decrement</button>
-    </>
-  ))
+const MyComponent = ModularComponent()
+  .with(lifecycle(({ props }) => {
+    // Write component state & logic here
+  }))
+  .with(render(({ props, lifecycle }) => (
+    // Use computed lifecycle in the render phase
+  )))
 ```
 
-```tsx
-// Usage in tests
+## Implementation
 
-// Test the lifecycle
-const useMyModularLifecycle =
-  MyModularComponent.atStage('withLifecycle').asHook('lifecycle')
+`with(lifecycle)` receives a function taking the current arguments map as parameter. It uses this function as the
+stage hook directly:
 
-const result = renderHook(useMyModularLifecycle)
+```ts
+import { ModularStage } from '@modular-component/core'
 
-expect(result.count).toEqual(0)
-act(result.increment)
-expect(result.count).toEqual(1)
-act(result.decrement)
-act(result.decrement)
-exepct(result.count).toEqual(-1)
-
-// Test the render
-const mockIncrement = someMock()
-const mockDecrement = someMock()
-
-const TestMyModularRender = MyModularComponent.withLifecycle({
-  count: 42,
-  increment: mockIncrement,
-  decrement: mockDecrement,
-})
-
-render(<TestMyModularRender />)
-
-expect(getByText('Count: 42')).toBeInTheDocument()
-
-userEvent.click(getByText('Increment'))
-expect(mockIncrement).toHaveBeenCalled()
-
-userEvent.click(getByText('Decrement'))
-expect(mockDecrement).toHaveBeenCalled()
+export function lifecycle<Args extends {}, Return>(
+  useLifecycle: (args: Args) => Return,
+): ModularStage<'lifecycle', (args: Args) => Return> {
+  return { field: 'lifecycle', useStage: useLifecycle }
+}
 ```
-
-## Learn more
-
-Read the [`ModularComponent` ReadMe](https://github.com/jvdsande/modular-component/blob/master/README.md) for more information about the `ModularComponent` system.

@@ -63,8 +63,12 @@ export type ModularComponent<
   >
   use<Field extends keyof Args>(
     key: Field,
-  ): {} extends Props ? () => Args[Field] : (props: PropsWithChildren<Props>) => Args[Field]
-  use(): {} extends Props ? () => Args : (props: PropsWithChildren<Props>) => Args
+  ): {} extends Props
+    ? () => Args[Field]
+    : (props: PropsWithChildren<Props>) => Args[Field]
+  use(): {} extends Props
+    ? () => Args
+    : (props: PropsWithChildren<Props>) => Args
   stage<Field extends keyof Args>(
     key: Field,
   ): (args: Partial<Args>) => Args[Field]
@@ -101,28 +105,35 @@ function InternalFactory<
   }
   useComponent.force = useComponent.with
 
-  useComponent.use =
-    (field: keyof Args) => (props: Props, ref: React.ForwardedRef<Ref>) => {
-      const args: Record<string, any> = { props }
-      const index = field
-        ? stages.findIndex((stage) => stage.field === field)
-        : false
-
-      if (index === false) {
+  useComponent.use = (field: keyof Args) => {
+    if (!field) {
+      return (
+        props: Props = {} as Props,
+        ref: React.ForwardedRef<Ref> = null,
+      ) => {
+        const args: Record<string, any> = { props }
         for (let stage of stages) {
           args[stage.field] = stage.useStage(args as Args, ref)
         }
         return args
       }
+    }
 
-      const argStages =
-        index === -1 ? stages.slice(0) : stages.slice(0, index + 1)
-      const returnStage = argStages.pop()
+    const index = stages.findIndex((stage) => stage.field === field)
+    const argStages =
+      index === -1 ? stages.slice(0) : stages.slice(0, index + 1)
+
+    return (
+      props: Props = {} as Props,
+      ref: React.ForwardedRef<Ref> = null,
+    ) => {
+      const args: Record<string, any> = { props }
       for (let stage of argStages) {
         args[stage.field] = stage.useStage(args as Args, ref)
       }
-      return returnStage?.useStage(args as Args, ref) ?? null
+      return args
     }
+  }
 
   useComponent.stage = (field: keyof Args) => {
     const stage = stages.find((stage) => stage.field === field)

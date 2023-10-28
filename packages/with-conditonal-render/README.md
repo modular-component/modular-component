@@ -1,50 +1,85 @@
-# `@modular-component/with-conditional-render`
+# @modular-component/with-conditional-render
 
 Provides three stages that allow conditional rendering in `ModularComponent`s:
 
-- `withCondition` will set a `condition` argument to either `true` or `false`, based
+- `with(condition)` will set a customizable argument to either `true` or `false`, based
   on current arguments,
-- `withConditionalFallback` takes a `FunctionComponent` as parameter, and
-  renders it when the `condition` argument is set to `false`,
-- `withConditionalRender` also takes a `FunctionComponent` as parameter, and
-  renders it when the `condition` argument is _not_ set to `false`.
+- `with(conditionalFallback)` takes a `FunctionComponent` as parameter, and
+  renders it when a customizable argument is set to `true`, filling the `render` argument in the process,
+- `with(conditionalRender)` also takes a `FunctionComponent` as parameter, and
+  renders it if the `render` argument was not filled earlier.
 
-`withCondition` and `withConditionalFallback` are multiple, so it's possible
-to chain multiple conditions with a different fallback for each. Subsequent calls
-to `withCondition` will take into account preceding conditions, so that `withConditionalRender`
-is only called when all conditions return `true`.
-
-## Installation and usage
-
-```bash
-yarn add @modular-component/core @modular-component/with-conditional-render
-```
+## Usage
 
 ```tsx
-import { modularFactory } from '@modular-component/core'
-import { WithConditionalRender } from '@modular-component/with-conditional-render'
+import { ModularComponent } from '@modular-component/core'
+import { condition, conditionalFallback, conditionalRender } from '@modular-component/with-conditional-render'
 
-const ModularComponent = modularFactory.extend(WithConditionalRender).build()
-
-const MyModularComponent = ModularComponent<{
-  isAuthenticated: boolean
-  isOwner: boolean
-}>()
-  .withCondition(({ props }) => props.isAuthenticated)
-  .withConditionalFallback(() => (
-    <div>You need to be authenticated to see this page</div>
-  ))
-  .withCondition(({ props }) => props.isOwner)
-  .withConditionalFallback(() => (
-    <div>You don't have enough permissions to see this page</div>
-  ))
-  .withConditionalRender(({ components }) => (
-    <>
-      <h1>Hello, Owner</h1>
-    </>
-  ))
+const ConditionalComponent = ModularComponent<{ enabled?: boolean }>()
+  .with(condition('disabled', ({ props }) => props.enabled !== true))
+  .with(conditionalFallback('disabled', () => <>I'm disabled!</>))
+  .with(lifecycle(() => {
+    // Some data fetching logic...
+    return { loading, data }
+  }))
+  .with(condition('loading', ({ lifecycle }) => lifecycle.loading === false))
+  .with(conditionalFallback('loading', () => <>I'm loading!</>))
+  .with(conditionalRender(({ lifecycle }) => (
+    <>I'm enabled and loaded, here is the content: {lifecycle.data}</>
+  )))
 ```
 
-## Learn more
+## Multiple conditions and fallbacks
 
-Read the [`ModularComponent` ReadMe](https://github.com/jvdsande/modular-component/blob/master/README.md) for more information about the `ModularComponent` system.
+You can use the `condition` and `conditionalFallback` multiple times in the same pipeline by providing different
+argument names as the first parameter.
+
+## Implementation
+
+The implementation for those stages is a bit more involved than other official extensions. Here, we have restrictions
+for each stage, as well as stage hooks.
+
+```tsx
+import React, { FunctionComponent } from 'react'
+import { ModularStage } from '@modular-component/core'
+
+export function condition<Args, Name extends string>(
+  name: Name,
+  useCondition: (args: Args) => boolean,
+): ModularStage<Name, (args: Args) => boolean> {
+  return { field: name, useStage: useCondition }
+}
+
+export function conditionalFallback<
+  Args extends { [key in Name]: boolean } & {
+    render?: ReturnType<FunctionComponent>
+  },
+  Name extends string,
+>(
+  name: Name,
+  useRender: (args: Args) => ReturnType<FunctionComponent>,
+): ModularStage<`render-${Name}`, (args: Args) => void> {
+  return {
+    field: `render-${name}`,
+    useStage: (args: Args) => {
+      args.render = !args[name] || args.render ? args.render : useRender(args)
+    },
+  }
+}
+
+export function conditionalRender<Args, Ref>(
+  useRender: (
+    args: Args,
+    ref: React.ForwardedRef<Ref>,
+  ) => ReturnType<FunctionComponent>,
+): ModularStage<
+  'render',
+  (args: Args, ref: React.ForwardedRef<Ref>) => ReturnType<FunctionComponent>
+> {
+  return {
+    field: 'render',
+    useStage: (args: Args, ref: React.ForwardedRef<Ref>) =>
+      (args as any).render ?? useRender(args, ref),
+  }
+}
+```

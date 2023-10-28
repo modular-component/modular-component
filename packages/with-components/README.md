@@ -1,48 +1,71 @@
-# `@modular-component/with-components`
+# @modular-component/with-components
 
-Provides a `withComponents` stage that fills the `components` argument with
+Provides a `with(components)` stage that fills the `components` argument with
 a map of React components. Useful when running tests in an environment that
 does not allow module mocking: sub-components can be stubbed in tests by
-calling the stage again to replace their implementations.
+mocking the stage to replace their implementations.
 
-## Installation and usage
-
-```bash
-yarn add @modular-component/core @modular-component/with-components
-```
+## Usage
 
 ```tsx
-// Usage in apps
-import { modularFactory } from '@modular-component/core'
-import { WithComponents } from '@modular-component/with-components'
+import { ModularComponent } from '@modular-component/core'
+import { components } from '@modular-component/with-components'
 
-const ModularComponent = modularFactory.extend(WithComponents).build()
+import { SomeComponent } from 'some-component'
 
-const MyModularComponent = ModularComponent()
-  .withComponents({
-    SubComponent: () => <h2>Subtitle</h2>,
-  })
-  .withRender(({ components }) => (
-    <>
-      <h1>Main Title</h1>
-      <components.SubComponent />
-    </>
-  ))
+const MyComponent = ModularComponent()
+  .with(components({ SomeComponent }))
+  .with(render(({ props, components }) => (
+    <components.SomeComponent />
+  )))
 ```
+
+## Replacing sub-components
+
+Replacing sub-components can be done either by updating or mocking the stage.
+It allows creating a clone of the component with a different sub-component implementation,
+either for tests or for content.
+For instance, one could imagine a `Layout` base component taking advantage of this functionality:
 
 ```tsx
-// Usage in tests
+const PageLayout = ModularComponent()
+  .with(components({
+    Title: React.Fragment,
+    Subtitle: React.Fragment,
+    Content: React.Fragment,
+    Footer: React.Fragment
+  }))
+  .with(render(({ components }) => (
+    // Build a layout using <components.Title />, <components.Subtitle />...
+  )))
 
-const SubComponentMock = someMock()
-const TestMyModularComponent = MyModularComponent.withComponents({
-  SubComponent: SubComponentMock,
-})
+const PageOne = PageLayout.with(components({
+  Title: () => <>First page</>,
+  Subtitle: () => <>I have a subtitle but no footer</>,
+  Content: () => <>First page content</>,
+  Footer: React.Fragment
+}))
 
-render(<TestMyModularComponent />)
-
-expect(someMock).toHaveBeenCalledOnce()
+const PageTwo = PageLayout.with(components({
+  Title: () => <>Second page</>,
+  Subtitle: React.Fragment,
+  Content: () => <>Second page content</>,
+  Footer: () => <>I have a footer but no subtitle</>
+}))
 ```
 
-## Learn more
+## Implementation
 
-Read the [`ModularComponent` ReadMe](https://github.com/jvdsande/modular-component/blob/master/README.md) for more information about the `ModularComponent` system.
+`with(components)` is a simple stage adding the provided record as a `components` argument. It has a restriction
+on accepted values, to only accept a record of React components.
+
+```tsx
+import { ComponentType } from 'react'
+import { ModularStage } from '@modular-component/core'
+
+export function components<Components extends Record<string, ComponentType>>(
+  components: Components,
+): ModularStage<'components', () => Components> {
+  return { field: 'components', useStage: () => components }
+}
+```
