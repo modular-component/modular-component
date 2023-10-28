@@ -1,5 +1,13 @@
 # @modular-component/with-lifecycle
 
+## 0.2.1
+
+### Patch Changes
+
+- 09b9673: Update readmes
+- Updated dependencies [09b9673]
+  - @modular-component/core@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
