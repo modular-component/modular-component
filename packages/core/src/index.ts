@@ -131,7 +131,7 @@ function InternalFactory<
       for (let stage of argStages) {
         args[stage.field] = stage.useStage(args as Args, ref)
       }
-      return args
+      return args[field as string]
     }
   }
 

@@ -1,4 +1,4 @@
-# `modular-component`
+# modular-component
 
 NPM registry alias for the `@modular-component/core` package.
 

@@ -13,20 +13,28 @@ Provides three stages that allow conditional rendering in `ModularComponent`s:
 
 ```tsx
 import { ModularComponent } from '@modular-component/core'
-import { condition, conditionalFallback, conditionalRender } from '@modular-component/with-conditional-render'
+import {
+  condition,
+  conditionalFallback,
+  conditionalRender,
+} from '@modular-component/with-conditional-render'
 
 const ConditionalComponent = ModularComponent<{ enabled?: boolean }>()
   .with(condition('disabled', ({ props }) => props.enabled !== true))
   .with(conditionalFallback('disabled', () => <>I'm disabled!</>))
-  .with(lifecycle(() => {
-    // Some data fetching logic...
-    return { loading, data }
-  }))
+  .with(
+    lifecycle(() => {
+      // Some data fetching logic...
+      return { loading, data }
+    }),
+  )
   .with(condition('loading', ({ lifecycle }) => lifecycle.loading === false))
   .with(conditionalFallback('loading', () => <>I'm loading!</>))
-  .with(conditionalRender(({ lifecycle }) => (
-    <>I'm enabled and loaded, here is the content: {lifecycle.data}</>
-  )))
+  .with(
+    conditionalRender(({ lifecycle }) => (
+      <>I'm enabled and loaded, here is the content: {lifecycle.data}</>
+    )),
+  )
 ```
 
 ## Multiple conditions and fallbacks

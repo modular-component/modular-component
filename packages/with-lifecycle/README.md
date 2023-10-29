@@ -1,4 +1,3 @@
-
 # @modular-component/with-lifecycle
 
 Basic stage allowing to save the result of a custom hook to a `lifecycle` argument passed down to further stages.

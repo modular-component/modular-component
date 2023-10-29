@@ -6,8 +6,9 @@ import type { TFuncKey, TFunction } from 'i18next'
 import './i18n'
 
 export { ModularComponent as Component } from '@modular-component/core'
-export { components } from '@modular-component/with-components'
+export * from '@modular-component/with-components'
 export * from '@modular-component/with-conditional-render'
+export * from '@modular-component/with-fragment'
 export * from '@modular-component/default'
 
 export function locale<Key extends TFuncKey<'translation'> = never>(

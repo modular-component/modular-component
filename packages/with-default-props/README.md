@@ -19,10 +19,10 @@ const MyComponent = ModularComponent<{ someFlag?: boolean }>()
     // props is inferred as { someFlag: boolean; someNewProp: string } at this point
   )))
 
-const MyDynamicProps = ModularComponent<{ 
-  role: 'user' | 'owner' | 'admin', 
-  canEdit?: boolean, 
-  canDelete?: boolean 
+const MyDynamicProps = ModularComponent<{
+  role: 'user' | 'owner' | 'admin',
+  canEdit?: boolean,
+  canDelete?: boolean
 }>()
   .with(defaultProps(({ props }) => ({
     canEdit: ['owner', 'admin'].includes(props.role),
@@ -59,15 +59,14 @@ export function defaultProps<
   DefaultProps extends Partial<Props>,
 >(
   defaultProps: DefaultProps | ((args: Args) => DefaultProps),
-): ModularStage<
-  'props',
-  (args: Args) => Merge<Props, DefaultProps>
-> {
+): ModularStage<'props', (args: Args) => Merge<Props, DefaultProps>> {
   return {
     field: 'props',
     useStage: (args: Args) =>
       ({
-        ...(typeof defaultProps === 'function' ? defaultProps(args) : defaultProps),
+        ...(typeof defaultProps === 'function'
+          ? defaultProps(args)
+          : defaultProps),
         ...args.props,
       } as Merge<Props, DefaultProps>),
   }

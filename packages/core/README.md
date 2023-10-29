@@ -1,4 +1,4 @@
-# `@modular-component/core`
+# @modular-component/core
 
 Core system for creating a `ModularComponent` factory. Exports the `modularFactory`
 builder, and necessary types for creating extensions.
@@ -13,9 +13,9 @@ yarn add @modular-component/core
 // Usage in apps
 import { ModularComponent, render } from '@modular-component/core'
 
-const MyComponent = ModularComponent().with(render(() => (
-  <div>Hello Modular!</div>
-)))
+const MyComponent = ModularComponent().with(
+  render(() => <div>Hello Modular!</div>),
+)
 ```
 
 ```tsx

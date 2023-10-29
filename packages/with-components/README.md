@@ -15,9 +15,7 @@ import { SomeComponent } from 'some-component'
 
 const MyComponent = ModularComponent()
   .with(components({ SomeComponent }))
-  .with(render(({ props, components }) => (
-    <components.SomeComponent />
-  )))
+  .with(render(({ props, components }) => <components.SomeComponent />))
 ```
 
 ## Replacing sub-components

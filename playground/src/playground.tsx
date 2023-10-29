@@ -58,15 +58,32 @@ const Conditional = Modular.Component<{
     )),
   )
   .with(
-    Modular.conditionalRender(({ lifecycle, date, locale }) => (
-      <UI.Stack>
-        <UI.Text align="center">{locale('loaded')}</UI.Text>
-        <UI.Text align="center" color="dimmed">
-          {locale('lastLoadedOn', { date: date.toISOString() })}
-        </UI.Text>
-        <UI.Button onClick={lifecycle.reload}>{locale('reload')}</UI.Button>
-      </UI.Stack>
+    Modular.fragment('loadedFragment', ({ locale }) => (
+      <UI.Text align="center">{locale('loaded')}</UI.Text>
     )),
+  )
+  .with(
+    Modular.fragment('lastLoadedFragment', ({ locale, date }) => (
+      <UI.Text align="center" color="dimmed">
+        {locale('lastLoadedOn', { date: date.toISOString() })}
+      </UI.Text>
+    )),
+  )
+  .with(
+    Modular.fragment('reloadFragment', ({ locale, lifecycle }) => (
+      <UI.Button onClick={lifecycle.reload}>{locale('reload')}</UI.Button>
+    )),
+  )
+  .with(
+    Modular.conditionalRender(
+      ({ loadedFragment, lastLoadedFragment, reloadFragment }) => (
+        <UI.Stack>
+          {loadedFragment}
+          {lastLoadedFragment}
+          {reloadFragment}
+        </UI.Stack>
+      ),
+    ),
   )
 
 const Unconditioned = Conditional.with(
@@ -74,10 +91,10 @@ const Unconditioned = Conditional.with(
 )
   .with(Modular.condition('loading', () => false))
   .with(
-    Modular.conditionalRender(({ lifecycle, locale }) => (
+    Modular.conditionalRender(({ lifecycle, locale, reloadFragment }) => (
       <UI.Stack>
         <UI.Text align="center">{locale('noWait')}</UI.Text>
-        <UI.Button onClick={lifecycle.reload}>{locale('reload')}</UI.Button>
+        {reloadFragment}
         <pre>{JSON.stringify({ lifecycle }, null, 2)}</pre>
       </UI.Stack>
     )),
