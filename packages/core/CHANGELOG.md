@@ -1,5 +1,11 @@
 # @modular-component/core
 
+## 0.2.2
+
+### Patch Changes
+
+- 77c46f4: Fix an issue in core rendering system
+
 ## 0.2.1
 
 ### Patch Changes
