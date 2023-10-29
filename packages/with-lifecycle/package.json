@@ -8,7 +8,7 @@
     "Default",
     "Conditional"
   ],
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "license": "MIT",
   "publishConfig": {
@@ -26,7 +26,7 @@
     "license": "cp ../../LICENSE ./LICENSE"
   },
   "dependencies": {
-    "@modular-component/core": "0.2.1"
+    "@modular-component/core": "0.2.2"
   },
   "devDependencies": {
     "typescript": "^5.2.2"
