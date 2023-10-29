@@ -26,9 +26,13 @@
     "license": "cp ../../LICENSE ./LICENSE"
   },
   "dependencies": {
-    "@modular-component/core": "0.2.0"
+    "@modular-component/core": "0.2.1"
+  },
+  "peerDependencies": {
+    "react": ">=17 <19"
   },
   "devDependencies": {
+    "@types/react": "^18.0.17",
     "typescript": "^5.2.2"
   },
   "main": "dist/index.js",
