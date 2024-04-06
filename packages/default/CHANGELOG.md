@@ -1,5 +1,14 @@
 # @modular-component/default
 
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [208e156]
+  - @modular-component/core@0.2.3
+  - @modular-component/with-default-props@0.2.3
+  - @modular-component/with-lifecycle@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes
