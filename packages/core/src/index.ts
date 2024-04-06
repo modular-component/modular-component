@@ -1,8 +1,4 @@
-import React, {
-  ForwardRefRenderFunction,
-  FunctionComponent,
-  PropsWithChildren,
-} from 'react'
+import React, { ForwardRefRenderFunction, FunctionComponent, PropsWithChildren } from 'react'
 
 export interface ModularStage<
   Field extends string,
@@ -72,7 +68,7 @@ export type ModularComponent<
   stage<Field extends keyof Args>(
     key: Field,
   ): (args: Partial<Args>) => Args[Field]
-  setDisplayName(displayName: string): ModularComponent<Props, Ref, Args>
+  withDisplayName(displayName: string): ModularComponent<Props, Ref, Args>
 }
 
 function InternalFactory<
@@ -84,28 +80,30 @@ function InternalFactory<
     string,
     (args: Args, ref: React.ForwardedRef<Ref>) => any
   >[],
+  displayName: string | undefined
 ): ModularComponent<Props, Ref, Args> {
-  const useComponent = function (props: Props, ref: React.ForwardedRef<Ref>) {
+  const UseComponent = function (props: Props, ref: React.ForwardedRef<Ref>) {
     if (!stages.some((stage) => stage.field === 'render')) {
       stages = [...stages, render(() => null)]
     }
-    return useComponent.use('render')(props, ref)
+    return UseComponent.use('render')(props, ref)
   }
+  UseComponent.displayName = displayName
 
-  useComponent.with = (stage: ModularStage<string, (args: Args) => any>) => {
+  UseComponent.with = (stage: ModularStage<string, (args: Args) => any>) => {
     const index = stages.findIndex((s) => s.field === stage.field)
 
     if (index !== -1) {
       const next = [...stages]
       next[index] = stage
-      return InternalFactory<Props, Ref, Args>(next)
+      return InternalFactory<Props, Ref, Args>(next, displayName)
     }
 
-    return InternalFactory<Props, Ref, Args>([...stages, stage])
+    return InternalFactory<Props, Ref, Args>([...stages, stage], displayName)
   }
-  useComponent.force = useComponent.with
+  UseComponent.force = UseComponent.with
 
-  useComponent.use = (field: keyof Args) => {
+  UseComponent.use = (field: keyof Args) => {
     if (!field) {
       return (
         props: Props = {} as Props,
@@ -135,16 +133,16 @@ function InternalFactory<
     }
   }
 
-  useComponent.stage = (field: keyof Args) => {
+  UseComponent.stage = (field: keyof Args) => {
     const stage = stages.find((stage) => stage.field === field)
     return stage?.useStage ?? (() => null)
   }
 
-  useComponent.setDisplayName = (displayName: string) => {
-    ;(useComponent as any).displayName = displayName
+  UseComponent.withDisplayName = (displayName: string) => {
+    return InternalFactory<Props, Ref, Args>([...stages], displayName)
   }
 
-  return useComponent as unknown as ModularComponent<Props, Ref, Args>
+  return UseComponent as unknown as ModularComponent<Props, Ref, Args>
 }
 
 export function ModularComponent<Props extends {} = {}, Ref = never>(
@@ -154,13 +152,11 @@ export function ModularComponent<Props extends {} = {}, Ref = never>(
   Ref,
   { props: Props; render: ReturnType<FunctionComponent> }
 > {
-  const useComponent = InternalFactory<
+  return InternalFactory<
     Props,
     Ref,
     { props: Props; render: ReturnType<FunctionComponent> }
-  >([])
-  useComponent.displayName = displayName
-  return useComponent
+  >([], displayName)
 }
 
 export function render<Args extends {}, Ref>(
