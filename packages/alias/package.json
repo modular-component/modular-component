@@ -14,21 +14,24 @@
     "access": "public"
   },
   "files": [
-    "src",
-    "dist",
+    "index.js",
+    "index.d.ts",
+    "extend.js",
+    "extend.d.ts",
+    "register.js",
+    "register.d.ts",
     "CHANGELOG.md"
   ],
   "scripts": {
-    "build": "yarn build:self",
-    "build:self": "tsc",
+    "build:self": "tsc --noEmit index extend register",
     "license": "cp ../../LICENSE ./LICENSE"
   },
   "dependencies": {
     "@modular-component/core": "0.2.3"
   },
   "devDependencies": {
-    "typescript": "^5.2.2"
+    "typescript": "^5.9.3"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts"
+  "main": "index.js",
+  "types": "index.d.ts"
 }

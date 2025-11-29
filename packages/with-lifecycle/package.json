@@ -17,6 +17,8 @@
   "files": [
     "src",
     "dist",
+    "register.js",
+    "register.d.ts",
     "CHANGELOG.md"
   ],
   "scripts": {
@@ -25,11 +27,12 @@
     "build:self": "tsc -p tsconfig.build.json",
     "license": "cp ../../LICENSE ./LICENSE"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@modular-component/core": "0.2.3"
   },
   "devDependencies": {
-    "typescript": "^5.2.2"
+    "@modular-component/core": "0.2.3",
+    "typescript": "^5.9.3"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts"

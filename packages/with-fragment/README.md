@@ -8,60 +8,114 @@ specifying a field key to use and returning a single React node.
 
 ## Usage
 
+**Stage function imports**
+
 ```tsx
 import { ModularComponent, render } from '@modular-component/core'
-import { fragment } from '@modular-component/with-fragment'
+import { fragment, fragments } from '@modular-component/with-fragment'
 
 // Through multiple calls
 const MultipleCalls = ModularComponent<{ loading: boolean }>()
-  .with(fragment('loading', () => <div>Loading...</div>))
-  .with(fragment('loaded', () => <div>Loaded</div>))
-  .with(render(({ props, loading, loaded }) => (
-    <div>Current status: {props.loading ? loading : loaded}</div>
-  )))
+  .with(fragment('loading', <div>Loading...</div>))
+  .with(fragment('loaded', <div>Loaded</div>))
+  .with(
+    render(({ props, loading, loaded }) => (
+      <div>Current status: {props.loading ? loading : loaded}</div>
+    )),
+  )
 
 // Through a single call
 const SingleCall = ModularComponent<{ loading: boolean }>()
-  .with(fragment(() => ({
-    loading: <div>Loading...</div>,
-    loaded: <div>Loaded</div>,
-  }))
-  .with(render(({ props, fragments }) => (
-    <div>Current status: {props.loading ? fragments.loading : fragments.loaded}</div>
-  ))))
+  .with(
+    fragments({
+      loading: <div>Loading...</div>,
+      loaded: <div>Loaded</div>,
+    }),
+  )
+  .with(
+    render(({ props, fragments }) => (
+      <div>
+        Current status: {props.loading ? fragments.loading : fragments.loaded}
+      </div>
+    )),
+  )
 ```
 
-## Implementation
+**Stage registration**
 
-`with(fragment)` receives a function taking the current arguments map as parameter and returns either a map of React node
-or a single React node, to set as stage function, and optionally a key to be used as the field.
+```tsx
+import { ModularComponent } from '@modular-component/core'
+import '@modular-component/core/register'
+import '@modular-component/with-fragment/register'
+
+// Through multiple calls
+const MultipleCalls = ModularComponent<{ loading: boolean }>()
+  .withFragment('loading', <div>Loading...</div>)
+  .withFragment('loaded', <div>Loaded</div>)
+  .withRender(({ props, loading, loaded }) => (
+    <div>Current status: {props.loading ? loading : loaded}</div>
+  ))
+
+// Through a single call
+const SingleCall = ModularComponent<{ loading: boolean }>()
+  .withFragments({
+    loading: <div>Loading...</div>,
+    loaded: <div>Loaded</div>,
+  })
+  .withRender(({ props, fragments }) => (
+    <div>
+      Current status: {props.loading ? fragments.loading : fragments.loaded}
+    </div>
+  ))
+```
+
+## Reacting to previous stages
+
+The fragment argument can either be a JSX fragment, or a function
+receiving the previous stages arguments and returning a JSX fragment:
+
+```tsx
+const UserCard = ModularComponent<{
+  firstName: string
+  lastName: string
+  email: string
+}>()
+  .withFragment('name', ({ props }) => (
+    <p>
+      {props.firstName} {props.lastName}
+    </p>
+  ))
+  .withFragment('email', ({ props }) => <p>{props.email}</p>)
+  .withRender(({ name, email }) => (
+    <article>
+      {name}
+      {email}
+    </article>
+  ))
+```
+
+## Stage registration
+
+You can either automatically register the stages on `withFragment` and `withFragments` by importing `@modular-component/with-fragment/register`,
+or handle the registration manually thanks to the `fragment` and `fragments` functions, and `WithFragment` and `WithFragments` type exports.
 
 ```ts
-import { ReactNode } from 'react'
-import { ModularStage } from '@modular-component/core'
+import { ModularComponent, ModularContext } from '@modular-component/core'
+import {
+  fragment,
+  fragments,
+  WithFragment,
+  WithFragments,
+} from '@modular-component/with-fragment'
 
-export function fragment<
-  Args extends {},
-  Fragments extends Record<string, ReactNode>,
->(
-  useFragment: (args: Args) => Fragments,
-): ModularStage<'fragments', (args: Args) => Fragments>
-export function fragment<
-  Args extends {},
-  Fragment extends ReactNode,
-  Key extends string,
->(
-  key: Key,
-  useFragment: (args: Args) => Fragment,
-): ModularStage<Key, (args: Args) => Fragment>
+// Register the stages on the factory
+ModularComponent.register({ fragment, fragments })
 
-export function fragment<Key extends string, Stage extends () => unknown>(
-  key: Key | Stage,
-  useFragment?: Stage,
-): ModularStage<Key, Stage> {
-  return {
-    field: (typeof key === 'string' ? key : 'fragments') as Key,
-    useStage: (typeof key === 'string' ? useFragment : key) as Stage,
+// Extend the type definition
+declare module '@modular-component/stages' {
+  export interface ModularComponentStages<Context extends ModularContext> {
+    withFragment: WithFragment<Context>
+    withFragments: WithFragment<Context>
   }
 }
 ```

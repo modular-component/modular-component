@@ -2,34 +2,52 @@
 
 Set of sensible defaults for using `ModularComponent`.
 
-Provides two stages: `with(lifecycle)` for adding a lifecycle hook, and `with(defaultProps)` for
-providing default values for props. It also re-exports `with(render)` from `@modular-component/props` for convenience.
+Provides two stages: `lifecycle()` for adding a lifecycle hook, and `defaultProps()` for
+providing default values for props. It also re-exports `render()` from `@modular-component/props` for convenience.
 
 It's also possible to import each of them individually through [`@modular-component/with-lifecycle`](https://npmjs.com/package/@modular-component/with-lifecycle)
 and <br /> [`@modular-component/with-default-props`](https://npmjs.com/package/@modular-component/with-default-props) respectively.
 
 ## Usage
 
+**Stage function imports**
+
 ```tsx
 import { ModularComponent } from '@modular-component/core'
 import { defaultProps, lifecycle, render } from '@modular-component/default'
 
 const MyComponent = ModularComponent()
-  .with(defaultProps({
-    // Define default props here
-  }))
-  .with(lifecycle(() => {
-    // Write component state & logic here
-  }))
-  .with(render(({ props, lifecycle }) => (
-    // Use generated props and lifecycle in the render phase
-  )))
+  .with(
+    defaultProps({
+      // Define default props here
+    }),
+  )
+  .with(
+    lifecycle(() => {
+      // Write component state & logic here
+    }),
+  )
+  .with(
+    render(({ props, lifecycle }) => {
+      // Use generated props and lifecycle in the render phase
+    }),
+  )
 ```
 
-## Implementation
+**Stage registration**
 
-`@modular-component/default` simply merge together the records from two other packages. To see the implementation
-details, refer to the individual packages:
+```tsx
+import { ModularComponent } from '@modular-component/core'
+import '@modular-component/default/register'
 
-- [`@modular-component/with-default-props`](https://npmjs.com/package/@modular-component/with-default-props): powerful default props capabilities
-- [`@modular-component/with-lifecycle`](https://npmjs.com/package/@modular-component/with-lifecycle): isolate component logic in a dedicated hook
+const MyComponent = ModularComponent()
+  .withDefaultProps({
+    // Define default props here
+  })
+  .withLifecycle(() => {
+    // Write component state & logic here
+  })
+  .withRender(({ props, lifecycle }) => {
+    // Use generated props and lifecycle in the render phase
+  })
+```

@@ -1,0 +1,30 @@
+{
+  "name": "@modular-component/stages",
+  "description": "Delightfully organized and deeply testable React Components",
+  "keywords": [
+    "React",
+    "Modular",
+    "Factory",
+    "Test"
+  ],
+  "version": "0.2.3",
+  "type": "module",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build:self": "tsc --noEmit index",
+    "license": "cp ../../LICENSE ./LICENSE"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "main": "index.js",
+  "types": "index.d.ts"
+}

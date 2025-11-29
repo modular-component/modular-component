@@ -17,19 +17,22 @@
   "files": [
     "src",
     "dist",
+    "register.js",
+    "register.d.ts",
     "CHANGELOG.md"
   ],
   "scripts": {
     "build": "yarn build:core && yarn build:self",
     "build:core": "yarn workspace @modular-component/core build",
-    "build:self": "tsc -p tsconfig.build.json",
+    "build:self": "tsc -p tsconfig.build.json && tsc --noEmit register",
     "license": "cp ../../LICENSE ./LICENSE"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@modular-component/core": "0.2.3"
   },
   "devDependencies": {
-    "typescript": "^5.2.2"
+    "@modular-component/core": "0.2.3",
+    "typescript": "^5.9.3"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts"
