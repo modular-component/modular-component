@@ -1,178 +1,184 @@
-import React, { ForwardRefRenderFunction, FunctionComponent, PropsWithChildren } from 'react'
+import {
+  ForwardRefRenderFunction,
+  FunctionComponent,
+  PropsWithChildren,
+} from 'react'
+import {
+  ModularComponentStages,
+  ModularContext,
+} from '@modular-component/stages'
+import { AppendStage, GetArgsFor, GetConstraintFor } from './extend'
 
-export interface ModularStage<
-  Field extends string,
-  Stage extends (args: any, ref?: any) => any,
-> {
-  field: Field
-  useStage: Stage
-}
-
-export type FunctionComponentOrRefRenderFunction<Props, Ref> = [Ref] extends [
-  never,
-]
+type FunctionComponentOrRefRenderFunction<Props, Ref> = [Ref] extends [never]
   ? FunctionComponent<PropsWithChildren<Props>>
-  : ForwardRefRenderFunction<Ref, Props>
+  : ForwardRefRenderFunction<Ref, PropsWithChildren<Props>>
 
-export type ModularComponent<
-  Props extends {},
-  Ref,
-  Args extends { render: ReturnType<FunctionComponent> },
-> = FunctionComponentOrRefRenderFunction<Props, Ref> & {
-  with<Field extends string, Type>(stage: {
-    field: Field
-    useStage: (
-      args: Args,
-      ref: React.ForwardedRef<Ref>,
-    ) => Field extends keyof Args ? Args[Field] : Type
-  }): ModularComponent<
-    Props,
-    Ref,
-    {
-      [key in keyof Args | Field]: key extends 'render'
-        ? ReturnType<FunctionComponent>
-        : key extends Field
-        ? Type
-        : key extends keyof Args
-        ? Args[key]
-        : never
-    }
-  >
-  force<Field extends string, Type>(stage: {
-    field: Field
-    useStage: (
-      args: Args,
-      ref: React.ForwardedRef<Ref>,
-    ) => Field extends 'render' ? Args['render'] : Type
-  }): ModularComponent<
-    Props,
-    Ref,
-    {
-      [key in keyof Args | Field]: key extends 'render'
-        ? ReturnType<FunctionComponent>
-        : key extends Field
-        ? Type
-        : key extends keyof Args
-        ? Args[key]
-        : never
-    }
-  >
-  use<Field extends keyof Args>(
-    key: Field,
-  ): {} extends Props
-    ? () => Args[Field]
-    : (props: PropsWithChildren<Props>) => Args[Field]
-  use(): {} extends Props
-    ? () => Args
-    : (props: PropsWithChildren<Props>) => Args
-  stage<Field extends keyof Args>(
-    key: Field,
-  ): (args: Partial<Args>) => Args[Field]
-  withDisplayName(displayName: string): ModularComponent<Props, Ref, Args>
+export type { ModularContext } from '@modular-component/stages'
+
+type MapToForce<Stages> = {
+  [key in keyof Stages as key extends `with${infer K}`
+    ? `force${K}`
+    : never]: Stages[key]
 }
 
-function InternalFactory<
-  Props extends {},
-  Ref,
-  Args extends { render: ReturnType<FunctionComponent> },
->(
-  stages: ModularStage<
-    string,
-    (args: Args, ref: React.ForwardedRef<Ref>) => any
-  >[],
-  displayName: string | undefined
-): ModularComponent<Props, Ref, Args> {
-  const UseComponent = function (props: Props, ref: React.ForwardedRef<Ref>) {
-    if (!stages.some((stage) => stage.field === 'render')) {
-      stages = [...stages, render(() => null)]
+type MapToStage<Stages> = Pick<
+  Stages,
+  {
+    [key in keyof Stages]: key extends `with${string}` ? key : never
+  }[keyof Stages]
+>
+
+type MapToRaw<Stages> = {
+  [key in keyof Stages as key extends `with${infer K}`
+    ? Uncapitalize<K>
+    : never]: Stages[key]
+}
+
+type Force<Context extends ModularContext> = Omit<Context, 'constraints'> & {
+  constraints: {}
+  _constraints: Context['constraints']
+}
+
+export type ModularComponent<Context extends ModularContext> =
+  FunctionComponentOrRefRenderFunction<Context['props'], Context['ref']> &
+    MapToStage<ModularComponentStages<Context>> &
+    MapToForce<ModularComponentStages<Force<Context>>> & {
+      with<Field extends string, Type extends GetConstraintFor<Context, Field>>(
+        stage: (context?: Context) => {
+          field: Field
+          provide: (args: GetArgsFor<Context, Field>) => Type
+        },
+      ): ModularComponent<AppendStage<Context, Field, Type>>
+      force<Field extends string, Type>(
+        stage: (context?: Force<Context>) => {
+          field: Field
+          provide: (args: GetArgsFor<Context, Field>) => Type
+        },
+      ): ModularComponent<AppendStage<Context, Field, Type>>
+
+      use<Field extends keyof Context['arguments']>(
+        key: Field,
+      ): {} extends Context['arguments']['props']
+        ? () => Context['arguments'][Field]
+        : (
+            props: PropsWithChildren<Context['arguments']['props']>,
+          ) => Context['arguments'][Field]
+      use(): {} extends Context['props']
+        ? () => Context['arguments']
+        : (props: PropsWithChildren<Context['props']>) => Context['arguments']
+      stage<Field extends keyof Context['arguments'] & string>(
+        key: Field,
+      ): (
+        args: Partial<GetArgsFor<Context, Field>>,
+      ) => Context['arguments'][Field]
+      withDisplayName(displayName: string): ModularComponent<Context>
     }
+
+let customFunctions: Record<
+  string,
+  (...args: any[]) => (ctx?: ModularContext) => {
+    field: string
+    provide: (args: any) => any
+  }
+> = {}
+
+function InternalFactory<Context extends ModularContext>(
+  stages: { field: string; provide: (args: any) => any }[],
+  displayName: string | undefined,
+): ModularComponent<Context> {
+  const UseComponent = function (props: Context['props'], ref: Context['ref']) {
     return UseComponent.use('render')(props, ref)
   }
   UseComponent.displayName = displayName
 
-  UseComponent.with = (stage: ModularStage<string, (args: Args) => any>) => {
+  UseComponent.with = (
+    _stage: (ctx?: Context) => { field: string; provide: (args: any) => any },
+  ) => {
+    const stage = _stage()
     const index = stages.findIndex((s) => s.field === stage.field)
 
     if (index !== -1) {
       const next = [...stages]
       next[index] = stage
-      return InternalFactory<Props, Ref, Args>(next, displayName)
+      return InternalFactory<Context>(next, displayName)
     }
 
-    return InternalFactory<Props, Ref, Args>([...stages, stage], displayName)
+    return InternalFactory<Context>([...stages, stage], displayName)
   }
   UseComponent.force = UseComponent.with
 
-  UseComponent.use = (field: keyof Args) => {
-    if (!field) {
-      return (
-        props: Props = {} as Props,
-        ref: React.ForwardedRef<Ref> = null,
-      ) => {
-        const args: Record<string, any> = { props }
-        for (let stage of stages) {
-          args[stage.field] = stage.useStage(args as Args, ref)
-        }
-        return args
-      }
-    }
-
-    const index = stages.findIndex((stage) => stage.field === field)
+  UseComponent.use = (field?: string) => {
+    const index = field
+      ? stages.findIndex((stage) => stage.field === field)
+      : -1
     const argStages =
       index === -1 ? stages.slice(0) : stages.slice(0, index + 1)
 
-    return (
-      props: Props = {} as Props,
-      ref: React.ForwardedRef<Ref> = null,
-    ) => {
-      const args: Record<string, any> = { props }
-      for (let stage of argStages) {
-        args[stage.field] = stage.useStage(args as Args, ref)
+    return (props = {}, ref = null) => {
+      const args: Record<string, any> = { props, ref }
+      if (field === 'render') {
+        args.render = null
       }
-      return args[field as string]
+      for (let stage of argStages) {
+        args[stage.field] = stage.provide(args)
+      }
+      return field ? args[field] : args
     }
   }
 
-  UseComponent.stage = (field: keyof Args) => {
+  UseComponent.stage = (field: string) => {
     const stage = stages.find((stage) => stage.field === field)
-    return stage?.useStage ?? (() => null)
+    return stage?.provide ?? (() => null)
   }
+
+  Object.entries(customFunctions).forEach(([name, fn]) => {
+    ;(UseComponent as any)[`with${name[0].toUpperCase()}${name.slice(1)}`] = (
+      ...args: any
+    ) => UseComponent.with(fn(...args))
+    ;(UseComponent as any)[
+      `force${name[0].toUpperCase()}${name.slice(1)}`
+    ] = (...args: any) => UseComponent.with(fn(...args))
+  })
 
   UseComponent.withDisplayName = (displayName: string) => {
-    return InternalFactory<Props, Ref, Args>([...stages], displayName)
+    return InternalFactory<Context>([...stages], displayName)
   }
 
-  return UseComponent as unknown as ModularComponent<Props, Ref, Args>
+  return UseComponent as unknown as ModularComponent<Context>
 }
 
 export function ModularComponent<Props extends {} = {}, Ref = never>(
   displayName?: string,
-): ModularComponent<
-  Props,
-  Ref,
-  { props: Props; render: ReturnType<FunctionComponent> }
-> {
-  return InternalFactory<
-    Props,
-    Ref,
-    { props: Props; render: ReturnType<FunctionComponent> }
-  >([], displayName)
+) {
+  return InternalFactory<{
+    props: Props
+    ref: Ref
+    stages: {}
+    arguments: {
+      props: Props
+      ref: Ref
+      render: ReturnType<FunctionComponent>
+    }
+    constraints: {
+      props: Props
+      ref: Ref
+      render: ReturnType<FunctionComponent>
+    }
+  }>([], displayName)
 }
 
-export function render<Args extends {}, Ref>(
-  render: (
-    args: Args,
-    ref: React.ForwardedRef<Ref>,
-  ) => React.ReactElement<any, any> | null,
-): ModularStage<
-  'render',
-  (
-    args: Args,
-    ref: React.ForwardedRef<Ref>,
-  ) => React.ReactElement<any, any> | null
-> {
-  return {
-    field: 'render',
-    useStage: render,
-  }
+ModularComponent.register = (
+  functions: Partial<
+    Record<
+      keyof MapToRaw<ModularComponentStages<any>>,
+      (...args: any[]) => (ctx?: ModularContext) => {
+        field: string
+        provide: (args: any) => any
+      }
+    >
+  >,
+) => {
+  customFunctions = { ...customFunctions, ...functions }
 }
+
+export * from './render'

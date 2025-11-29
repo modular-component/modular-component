@@ -15,25 +15,30 @@
     "access": "public"
   },
   "files": [
-    "src",
-    "dist",
+    "index.js",
+    "index.d.ts",
+    "register.js",
+    "register.d.ts",
     "CHANGELOG.md"
   ],
   "scripts": {
-    "build": "yarn build:with-default-props && yarn build:with-lifecycle && yarn build:self",
+    "build": "yarn build:with-default-props && yarn build:with-lifecycle",
+    "build:self": "tsc --noEmit index register",
     "build:with-default-props": "yarn workspace @modular-component/with-default-props build",
     "build:with-lifecycle": "yarn workspace @modular-component/with-lifecycle build",
-    "build:self": "tsc",
     "license": "cp ../../LICENSE ./LICENSE"
   },
   "dependencies": {
-    "@modular-component/core": "0.2.3",
     "@modular-component/with-default-props": "0.2.3",
     "@modular-component/with-lifecycle": "0.2.3"
   },
-  "devDependencies": {
-    "typescript": "^5.2.2"
+  "peerDependencies": {
+    "@modular-component/core": "0.2.3"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts"
+  "devDependencies": {
+    "@modular-component/core": "0.2.3",
+    "typescript": "^5.9.3"
+  },
+  "main": "index.js",
+  "types": "index.d.ts"
 }

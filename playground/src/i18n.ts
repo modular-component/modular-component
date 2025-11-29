@@ -1,7 +1,7 @@
-import { use } from 'i18next'
+import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
-const en = {
+export const en = {
   components: {
     Loading: {
       loading: 'Loading...',
@@ -21,9 +21,9 @@ const en = {
       reload: 'Reload',
     },
   },
-} as const
+}
 
-use(initReactI18next).init({
+i18n.use(initReactI18next).init({
   lng: 'en',
   resources: {
     en: {
@@ -31,6 +31,8 @@ use(initReactI18next).init({
     },
   },
 })
+
+export default i18n
 
 declare module 'i18next' {
   interface CustomTypeOptions {

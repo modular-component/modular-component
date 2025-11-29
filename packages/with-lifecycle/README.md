@@ -6,30 +6,59 @@ injected argument.
 
 ## Usage
 
+**Stage function imports**
+
 ```tsx
-import { ModularComponent } from '@modular-component/core'
+import { ModularComponent, render } from '@modular-component/core'
 import { lifecycle } from '@modular-component/with-lifecycle'
 
 const MyComponent = ModularComponent()
-  .with(lifecycle(({ props }) => {
-    // Write component state & logic here
-  }))
-  .with(render(({ props, lifecycle }) => (
-    // Use computed lifecycle in the render phase
-  )))
+  .with(
+    lifecycle(({ props }) => {
+      // Write component state & logic here
+    }),
+  )
+  .with(
+    render(({ props, lifecycle }) => {
+      // Use computed lifecycle in the render phase
+    }),
+  )
 ```
 
-## Implementation
+**Stage registration**
 
-`with(lifecycle)` receives a function taking the current arguments map as parameter. It uses this function as the
-stage hook directly:
+```tsx
+import { ModularComponent } from '@modular-component/core'
+import '@modular-component/core/register'
+import '@modular-component/with-lifecycle/register'
+
+const MyComponent = ModularComponent()
+  .withLifecycle(({ props }) => {
+    // Write component state & logic here
+  })
+  .withRender(({ props, lifecycle }) => {
+    // Use computed lifecycle in the render phase
+  })
+```
+
+## Stage registration
+
+You can either automatically register the stage on `withLifecycle` by importing `@modular-component/with-lifecycle/register`,
+or handle the registration manually thanks to the `lifecycle` function and `WithLifecycle` type exports.
+
+For instance, here is how you could register it on `withLogic` instead:
 
 ```ts
-import { ModularStage } from '@modular-component/core'
+import { ModularComponent, ModularContext } from '@modular-component/core'
+import { lifecycle, WithLifecycle } from '@modular-component/with-lifecycle'
 
-export function lifecycle<Args extends {}, Return>(
-  useLifecycle: (args: Args) => Return,
-): ModularStage<'lifecycle', (args: Args) => Return> {
-  return { field: 'lifecycle', useStage: useLifecycle }
+// Register the stage on the factory
+ModularComponent.register({ logic: lifecycle })
+
+// Extend the type definition
+declare module '@modular-component/stages' {
+  export interface ModularComponentStages<Context extends ModularContext> {
+    withLogic: WithLifecycle<Context>
+  }
 }
 ```
