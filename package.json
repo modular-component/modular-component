@@ -14,7 +14,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "changeset:version": "yarn depcheck && changeset version",
-    "changeset:release": "yarn build && yarn license && changeset publish"
+    "changeset:release": "yarn build && yarn depcheck && yarn license && changeset publish"
   },
   "dependencies": {
     "@changesets/cli": "^2.29.8",
