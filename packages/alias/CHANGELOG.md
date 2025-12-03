@@ -1,5 +1,16 @@
 # modular-component
 
+## 0.3.0
+
+### Minor Changes
+
+- 1784a2b: Add a clean way to extend the ModularComponent API with new dedicated stage functions
+
+### Patch Changes
+
+- Updated dependencies [1784a2b]
+  - @modular-component/core@0.3.0
+
 ## 0.2.3
 
 ### Patch Changes

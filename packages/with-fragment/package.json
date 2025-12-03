@@ -8,7 +8,7 @@
     "Default",
     "Conditional"
   ],
-  "version": "0.2.3",
+  "version": "0.3.0",
   "type": "module",
   "license": "MIT",
   "publishConfig": {
@@ -28,7 +28,7 @@
     "license": "cp ../../LICENSE ./LICENSE"
   },
   "peerDependencies": {
-    "@modular-component/core": "0.2.3",
+    "@modular-component/core": "0.3.0",
     "react": ">=17 <19"
   },
   "devDependencies": {
