@@ -1,6 +1,6 @@
 {
   "name": "modular-component",
-  "version": "1.0.0",
+  "version": "0.3.0",
   "description": "A React Component System for delightfully organized and deeply testable Modular Components",
   "workspaces": [
     "packages/*",
@@ -17,7 +17,7 @@
     "changeset:release": "yarn build && yarn license && changeset publish"
   },
   "dependencies": {
-    "@changesets/cli": "^2.25.0",
+    "@changesets/cli": "^2.29.8",
     "depcheck": "^1.4.3",
     "prettier": "^2.7.1",
     "react": "^18.2.0",
