@@ -33,7 +33,6 @@
     "react": ">=17 <19"
   },
   "devDependencies": {
-    "@modular-component/core": "0.2.3",
     "@types/react": "^18.0.17",
     "typescript": "^5.9.3"
   },
