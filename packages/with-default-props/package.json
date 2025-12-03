@@ -31,7 +31,7 @@
     "@modular-component/core": "0.3.0"
   },
   "devDependencies": {
-    "@modular-component/core": "workspace:*",
+    "@modular-component/core": "*",
     "typescript": "^5.9.3"
   },
   "main": "dist/index.js",
