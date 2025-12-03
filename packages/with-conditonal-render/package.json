@@ -32,6 +32,7 @@
     "react": ">=17 <19"
   },
   "devDependencies": {
+    "@modular-component/core": "workspace:*",
     "@types/react": "^18.0.17",
     "typescript": "^5.9.3"
   },
