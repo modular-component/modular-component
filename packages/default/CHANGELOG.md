@@ -1,5 +1,14 @@
 # @modular-component/default
 
+## 0.3.2
+
+### Patch Changes
+
+- 73774e2: Fix imports
+  - @modular-component/core@0.3.2
+  - @modular-component/with-default-props@0.3.2
+  - @modular-component/with-lifecycle@0.3.2
+
 ## 0.3.1
 
 ### Patch Changes
