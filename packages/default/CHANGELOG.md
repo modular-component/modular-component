@@ -1,5 +1,13 @@
 # @modular-component/default
 
+## 0.3.3
+
+### Patch Changes
+
+- @modular-component/core@0.3.3
+- @modular-component/with-default-props@0.3.3
+- @modular-component/with-lifecycle@0.3.3
+
 ## 0.3.2
 
 ### Patch Changes

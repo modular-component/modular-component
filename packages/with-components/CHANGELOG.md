@@ -1,5 +1,12 @@
 # @modular-component/with-components
 
+## 0.3.3
+
+### Patch Changes
+
+- b92d207: Relax constraint type to accept any component-type with the same props
+  - @modular-component/core@0.3.3
+
 ## 0.3.2
 
 ### Patch Changes
