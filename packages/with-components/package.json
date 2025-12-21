@@ -9,7 +9,7 @@
     "Sub-components",
     "Injection"
   ],
-  "version": "0.3.2",
+  "version": "0.3.3",
   "type": "module",
   "license": "MIT",
   "publishConfig": {
@@ -29,7 +29,7 @@
     "license": "cp ../../LICENSE ./LICENSE"
   },
   "peerDependencies": {
-    "@modular-component/core": "0.3.2",
+    "@modular-component/core": "0.3.3",
     "react": ">=17"
   },
   "devDependencies": {
