@@ -1,5 +1,13 @@
 # @modular-component/with-components
 
+## 0.3.1
+
+### Patch Changes
+
+- 6fa514f: Fix exports compatibility with some bundlers
+- Updated dependencies [6fa514f]
+  - @modular-component/core@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes
