@@ -1,3 +1,3 @@
-import '@modular-component/core/register.js'
-import '@modular-component/with-lifecycle/register.js'
-import '@modular-component/with-default-props/register.js'
+import '@modular-component/core/register'
+import '@modular-component/with-lifecycle/register'
+import '@modular-component/with-default-props/register'
