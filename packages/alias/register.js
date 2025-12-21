@@ -1,1 +1,1 @@
-export * from '@modular-component/core/register.js'
+export * from '@modular-component/core/register'

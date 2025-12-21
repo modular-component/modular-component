@@ -1,1 +1,1 @@
-export * from '@modular-component/core/extend.js'
+export * from '@modular-component/core/extend'
