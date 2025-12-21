@@ -19,7 +19,16 @@ export function components<
   Context extends ModularContext,
   Type extends Constraint<Context>,
 >(components: GetValueGetterFor<Context, 'components', Type>) {
-  return addTo<Context>().on('components').provide(wrap(components))
+  return addTo<Context>()
+    .on('components')
+    .provide(
+      (args) =>
+        wrap(components)(args) as {
+          [key in keyof Type]: Type[key] extends ComponentType<infer U>
+            ? ComponentType<U>
+            : never
+        },
+    )
 }
 
 export type WithComponents<Context extends ModularContext> = <
