@@ -6,7 +6,7 @@ import {
   GetValueGetterFor,
   StageParams,
   StageReturn,
-} from './extend'
+} from './extend.js'
 
 export function render<Context extends ModularContext>(
   useRender: GetValueGetterFor<

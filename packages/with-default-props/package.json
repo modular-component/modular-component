@@ -35,5 +35,9 @@
     "typescript": "^5.9.3"
   },
   "main": "dist/index.js",
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./register": "./register.js"
+  }
 }

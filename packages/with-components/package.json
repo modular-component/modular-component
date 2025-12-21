@@ -30,7 +30,7 @@
   },
   "peerDependencies": {
     "@modular-component/core": "0.3.0",
-    "react": ">=17 <19"
+    "react": ">=17"
   },
   "devDependencies": {
     "@modular-component/core": "*",
@@ -38,5 +38,9 @@
     "typescript": "^5.9.3"
   },
   "main": "dist/index.js",
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./register": "./register.js"
+  }
 }

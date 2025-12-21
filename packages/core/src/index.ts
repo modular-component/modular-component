@@ -181,4 +181,4 @@ ModularComponent.register = (
   customFunctions = { ...customFunctions, ...functions }
 }
 
-export * from './render'
+export * from './render.js'
