@@ -13,7 +13,7 @@
     "license": "wsrun -s -p @modular-component/* -p modular-component -c license",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
-    "changeset:version": "yarn depcheck && changeset version",
+    "changeset:version": "yarn build && yarn depcheck && changeset version",
     "changeset:release": "yarn build && yarn depcheck && yarn license && changeset publish"
   },
   "dependencies": {
