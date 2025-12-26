@@ -89,10 +89,19 @@ ModularComponent.register({
   date,
   locale,
 })
+
+const Dated = ModularComponent.base().withDate()
+
+ModularComponent.preset('default', Dated)
+
 declare module '@modular-component/stages' {
   export interface ModularComponentStages<Context extends ModularContext> {
     withDate: WithDate<Context>
     withLocale: WithLocale<Context>
+  }
+
+  export interface ModularComponentPresets {
+    default: typeof Dated
   }
 }
 

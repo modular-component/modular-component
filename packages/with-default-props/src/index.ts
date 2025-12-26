@@ -60,7 +60,7 @@ export function defaultProps<
     .provide((args): Merge<Context['props'], Default> => {
       const defaultProps = wrap(useDefault)(args)
       const merged = {
-        ...(args as { props: Context['props'] }).props
+        ...(args as { props: Context['props'] }).props,
       }
 
       Object.entries(defaultProps).forEach(([prop, value]) => {

@@ -15,20 +15,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@modular-component/core": ["../packages/core/src"],
-      "@modular-component/extension": ["../packages/extension/src"],
-      "@modular-component/default": ["../packages/default"],
-      "@modular-component/with-components": ["../packages/with-components/src"],
-      "@modular-component/with-conditional-render": [
-        "../packages/with-conditional-render/src"
-      ],
-      "@modular-component/with-default-props": [
-        "../packages/with-default-props/src"
-      ],
-      "@modular-component/with-lifecycle": ["../packages/with-lifecycle/src"]
-    }
+    "baseUrl": "."
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

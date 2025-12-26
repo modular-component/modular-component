@@ -30,7 +30,6 @@ const Conditional = ModularComponent<{
   enabled?: boolean
   other?: boolean
 }>()
-  .withDate()
   .withDefaultProps({ enabled: false })
   .withLocale('components.Conditional')
   .withComponents({ Loading, Disabled })

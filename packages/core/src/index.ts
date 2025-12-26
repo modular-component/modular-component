@@ -4,6 +4,7 @@ import {
   PropsWithChildren,
 } from 'react'
 import {
+  ModularComponentPresets,
   ModularComponentStages,
   ModularContext,
 } from '@modular-component/stages'
@@ -11,7 +12,10 @@ import { AppendStage, GetArgsFor, GetConstraintFor } from './extend'
 
 type FunctionComponentOrRefRenderFunction<Props, Ref> = [Ref] extends [never]
   ? FunctionComponent<PropsWithChildren<Props>>
-  : ForwardRefRenderFunction<Ref, PropsWithChildren<Props>>
+  : Omit<
+      ForwardRefRenderFunction<Ref, PropsWithChildren<Props>>,
+      'defaultProps' | 'propTypes'
+    >
 
 export type { ModularContext } from '@modular-component/stages'
 
@@ -74,6 +78,24 @@ export type ModularComponent<Context extends ModularContext> =
       withDisplayName(displayName: string): ModularComponent<Context>
     }
 
+type ApplyPreset<Context extends ModularContext, Props extends {}, Ref> = {
+  props: Context['props'] & Props
+  ref: Ref
+  stages: Context['stages']
+  arguments: Context['arguments'] & {
+    props: Props
+    ref: Ref
+  } extends infer U
+    ? { [key in keyof U]: U[key] }
+    : never
+  constraints: Context['constraints'] & {
+    props: Props
+    ref: Ref
+  } extends infer U
+    ? { [key in keyof U]: U[key] }
+    : never
+}
+
 let customFunctions: Record<
   string,
   (...args: any[]) => (ctx?: ModularContext) => {
@@ -81,6 +103,27 @@ let customFunctions: Record<
     provide: (args: any) => any
   }
 > = {}
+const basePreset = InternalFactory([], undefined) as ModularComponent<{
+  props: {}
+  ref: never
+  constraints: {
+    render: ReturnType<FunctionComponent>
+  }
+  arguments: {
+    render: ReturnType<FunctionComponent>
+  }
+  stages: {}
+}>
+const presets: Record<string, ModularComponent<any>> = {
+  default: basePreset,
+  base: basePreset,
+}
+
+declare module '@modular-component/stages' {
+  export interface ModularComponentPresets {
+    base: typeof basePreset
+  }
+}
 
 function InternalFactory<Context extends ModularContext>(
   stages: { field: string; provide: (args: any) => any }[],
@@ -135,9 +178,9 @@ function InternalFactory<Context extends ModularContext>(
     ;(UseComponent as any)[`with${name[0].toUpperCase()}${name.slice(1)}`] = (
       ...args: any
     ) => UseComponent.with(fn(...args))
-    ;(UseComponent as any)[
-      `force${name[0].toUpperCase()}${name.slice(1)}`
-    ] = (...args: any) => UseComponent.with(fn(...args))
+    ;(UseComponent as any)[`force${name[0].toUpperCase()}${name.slice(1)}`] = (
+      ...args: any
+    ) => UseComponent.with(fn(...args))
   })
 
   UseComponent.withDisplayName = (displayName: string) => {
@@ -147,27 +190,27 @@ function InternalFactory<Context extends ModularContext>(
   return UseComponent as unknown as ModularComponent<Context>
 }
 
-export function ModularComponent<Props extends {} = {}, Ref = never>(
+function _ModularComponent<Props extends {} = {}, Ref = never>(
   displayName?: string,
 ) {
-  return InternalFactory<{
-    props: Props
-    ref: Ref
-    stages: {}
-    arguments: {
-      props: Props
-      ref: Ref
-      render: ReturnType<FunctionComponent>
-    }
-    constraints: {
-      props: Props
-      ref: Ref
-      render: ReturnType<FunctionComponent>
-    }
-  }>([], displayName)
+  return presets.default.withDisplayName(
+    displayName as string,
+  ) as ModularComponent<
+    ApplyPreset<
+      (
+        ModularComponentPresets extends { default: infer C }
+          ? C
+          : typeof basePreset
+      ) extends ModularComponent<infer U>
+        ? U
+        : never,
+      Props,
+      Ref
+    >
+  >
 }
 
-ModularComponent.register = (
+_ModularComponent.register = (
   functions: Partial<
     Record<
       keyof MapToRaw<ModularComponentStages<any>>,
@@ -180,5 +223,41 @@ ModularComponent.register = (
 ) => {
   customFunctions = { ...customFunctions, ...functions }
 }
+
+_ModularComponent.preset = <
+  Preset extends Exclude<
+    keyof ModularComponentPresets,
+    'register' | 'preset' | 'base'
+  >,
+>(
+  preset: Preset,
+  component: ModularComponentPresets[Preset],
+) => {
+  presets[preset] = component as any
+  ;(_ModularComponent as any)[preset] = (displayName?: string) => {
+    return presets[preset].withDisplayName(displayName as string)
+  }
+}
+
+_ModularComponent.preset('default' as never, basePreset as never)
+_ModularComponent.preset('base' as never, basePreset as never)
+
+export const ModularComponent =
+  _ModularComponent as typeof _ModularComponent & {
+    [Preset in Exclude<
+      keyof ModularComponentPresets,
+      'register' | 'preset' | 'default'
+    >]: <Props extends {} = {}, Ref = never>(
+      displayName?: string,
+    ) => ModularComponent<
+      ApplyPreset<
+        ModularComponentPresets[Preset] extends ModularComponent<infer U>
+          ? U
+          : never,
+        Props,
+        Ref
+      >
+    >
+  }
 
 export * from './render.js'
